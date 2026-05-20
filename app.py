@@ -57,17 +57,15 @@ def load_model():
         map_location=device
     )
 
-    try:
-        model.load_state_dict(state_dict)
-
-    except Exception as e:
-        st.error(str(e))
-        st.stop()
+    model.load_state_dict(state_dict, strict=False)
 
     model.to(device)
     model.eval()
 
     return model
+
+# WAJIB ADA
+model = load_model()
 
 # ======================================
 # STREAMLIT UI
