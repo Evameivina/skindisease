@@ -1,7 +1,8 @@
 # app.py
 import streamlit as st
 import torch
-from torchvision import transforms
+import torch.nn as nn
+from torchvision import models, transforms
 from PIL import Image
 # ======================================
 # CONFIG
