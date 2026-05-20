@@ -1,11 +1,8 @@
 # app.py
-
 import streamlit as st
 import torch
-import torch.nn as nn
-from torchvision import models, transforms
+from torchvision import transforms
 from PIL import Image
-
 # ======================================
 # CONFIG
 # ======================================
@@ -36,35 +33,21 @@ transform = transforms.Compose([
 # ======================================
 # LOAD MODEL
 # ======================================
+# ======================================
+# LOAD MODEL
+# ======================================
 @st.cache_resource
 def load_model():
 
-    model = models.convnext_tiny(weights=None)
-
-    in_features = model.classifier[2].in_features
-
-    model.classifier = nn.Sequential(
-        nn.Flatten(),
-        nn.LayerNorm(in_features),
-        nn.Linear(in_features, 256),
-        nn.GELU(),
-        nn.Dropout(0.5),
-        nn.Linear(256, len(classes))
-    )
-
-    state_dict = torch.load(
-        MODEL_PATH,
+    model = torch.load(
+        "convnext_full_model.pth",
         map_location=device
     )
 
-    model.load_state_dict(state_dict, strict=False)
-
-    model.to(device)
     model.eval()
 
     return model
 
-# WAJIB ADA
 model = load_model()
 
 # ======================================
