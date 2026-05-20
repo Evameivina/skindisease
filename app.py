@@ -43,7 +43,6 @@ def load_model():
 
     in_features = model.classifier[2].in_features
 
-    # HARUS sama dengan model training
     model.classifier = nn.Sequential(
         nn.Flatten(),
         nn.LayerNorm(in_features),
@@ -53,17 +52,22 @@ def load_model():
         nn.Linear(256, len(classes))
     )
 
-    # load model
-    model.load_state_dict(
-        torch.load(MODEL_PATH, map_location=device)
+    state_dict = torch.load(
+        MODEL_PATH,
+        map_location=device
     )
+
+    try:
+        model.load_state_dict(state_dict)
+
+    except Exception as e:
+        st.error(str(e))
+        st.stop()
 
     model.to(device)
     model.eval()
 
     return model
-
-model = load_model()
 
 # ======================================
 # STREAMLIT UI
