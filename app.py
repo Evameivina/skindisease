@@ -33,16 +33,28 @@ transform = transforms.Compose([
 # ======================================
 # LOAD MODEL
 # ======================================
-# ======================================
-# LOAD MODEL
-# ======================================
 @st.cache_resource
 def load_model():
 
-    model = torch.load(
-        "convnext_full_model.pth",
+    model = models.convnext_tiny(weights=None)
+
+    in_features = model.classifier[2].in_features
+
+    model.classifier = nn.Sequential(
+        nn.Flatten(),
+        nn.LayerNorm(in_features),
+        nn.Linear(in_features, 256),
+        nn.GELU(),
+        nn.Dropout(0.5),
+        nn.Linear(256, len(classes))
+    )
+
+    state_dict = torch.load(
+        "convnext_skin_state_dict.pth",
         map_location=device
     )
+
+    model.load_state_dict(state_dict)
 
     model.eval()
 
