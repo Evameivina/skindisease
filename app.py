@@ -96,55 +96,65 @@ st.markdown("""
 
 .stApp{
     background:#0D1117;
-    color:white;
+    color:#E6EDF3;
 }
 
-/* SIDEBAR */
+/* =========================
+SIDEBAR
+========================= */
 section[data-testid="stSidebar"]{
-    background:#161B22;
+    background:#11161D;
     border-right:1px solid #30363D;
 }
 
 section[data-testid="stSidebar"] *{
-    color:white !important;
+    color:#E6EDF3 !important;
 }
 
-/* TITLE */
+/* =========================
+TITLE
+========================= */
 .main-title{
     font-size:42px;
     font-weight:700;
     color:#58A6FF;
-    margin-bottom:0;
+    margin-bottom:0px;
 }
 
 .sub-title{
     color:#8B949E;
-    margin-top:0;
     margin-bottom:30px;
 }
 
-/* CARD */
+/* =========================
+CARD
+========================= */
 .custom-card{
     background:#161B22;
-    padding:30px;
-    border-radius:20px;
     border:1px solid #30363D;
+    border-radius:20px;
+    padding:28px;
     margin-bottom:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.25);
 }
 
-/* RESULT */
+/* =========================
+RESULT
+========================= */
 .result-title{
     font-size:36px;
     font-weight:700;
-    margin-bottom:10px;
 }
 
 .result-score{
-    font-size:50px;
+    font-size:52px;
     font-weight:700;
+    margin-top:10px;
 }
 
-/* FILE UPLOADER */
+/* =========================
+UPLOAD
+========================= */
 [data-testid="stFileUploader"]{
     background:#161B22;
     border:2px dashed #30363D;
@@ -152,23 +162,66 @@ section[data-testid="stSidebar"] *{
     padding:15px;
 }
 
-/* BUTTON */
+/* =========================
+BUTTON
+========================= */
 .stButton > button{
-    background:#238636;
+    background:linear-gradient(135deg,#238636,#2EA043);
     color:white;
     border:none;
-    border-radius:12px;
-    padding:12px;
+    border-radius:14px;
+    padding:14px;
+    font-size:16px;
     font-weight:600;
     width:100%;
 }
 
 .stButton > button:hover{
-    background:#2EA043;
+    opacity:0.9;
 }
 
-/* HIDE STREAMLIT */
-#MainMenu, footer, header{
+/* =========================
+RADIO MENU
+========================= */
+.stRadio > div{
+    gap:12px;
+}
+
+.stRadio label{
+    background:#161B22;
+    border:1px solid #30363D;
+    padding:14px 18px;
+    border-radius:14px;
+    width:100%;
+    transition:0.2s;
+}
+
+.stRadio label:hover{
+    border:1px solid #58A6FF;
+    background:#1B222C;
+}
+
+/* =========================
+SELECTBOX
+========================= */
+[data-baseweb="select"]{
+    background:#161B22;
+    border-radius:12px;
+}
+
+/* =========================
+WARNING
+========================= */
+[data-testid="stAlert"]{
+    border-radius:14px;
+}
+
+/* =========================
+HIDE STREAMLIT
+========================= */
+#MainMenu,
+footer,
+header{
     visibility:hidden;
 }
 
@@ -241,13 +294,41 @@ def predict(image, model):
 # =========================================================
 with st.sidebar:
 
-    st.markdown("## 🔬 DermaScan")
-    st.markdown("Skin Disease Detection")
+    st.markdown("""
+    <div style="
+        text-align:center;
+        padding-top:10px;
+        padding-bottom:20px;
+    ">
 
-    st.markdown("---")
+    <div style="
+        font-size:40px;
+    ">
+    🔬
+    </div>
+
+    <div style="
+        font-size:28px;
+        font-weight:700;
+        color:#58A6FF;
+    ">
+    DermaScan
+    </div>
+
+    <div style="
+        color:#8B949E;
+        font-size:14px;
+    ">
+    Skin Disease Detection
+    </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### MENU")
 
     menu = st.radio(
-        "MENU",
+        "",
         [
             "🩺 Deteksi Penyakit Kulit",
             "📚 Informasi Penyakit"
@@ -257,12 +338,25 @@ with st.sidebar:
     st.markdown("---")
 
     st.markdown("""
-    ### Kelas yang Didukung
-    - Eczema
-    - Herpes Zoster
-    - Normal
-    - Ringworm
-    """)
+    <div style="
+        color:#8B949E;
+        font-size:14px;
+        line-height:1.8;
+    ">
+
+    <b style="color:white;">
+    Kelas yang Didukung
+    </b>
+
+    <br><br>
+
+    • Eczema<br>
+    • Herpes Zoster<br>
+    • Normal<br>
+    • Ringworm
+
+    </div>
+    """, unsafe_allow_html=True)
 
 # =========================================================
 # MENU DETEKSI
