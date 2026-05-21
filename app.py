@@ -45,38 +45,16 @@ st.markdown("""
 }
 
 .main-title{
-    font-size: 2.2rem;
+    font-size: 38px;
     font-weight: bold;
     color: #1f2937;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 
 .sub-text{
+    font-size: 16px;
     color: #6b7280;
     margin-bottom: 25px;
-    font-size: 15px;
-}
-
-.result-box{
-    background-color: white;
-    padding: 30px;
-    border-radius: 18px;
-    border: 1px solid #e5e7eb;
-    margin-top: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-}
-
-.result-title{
-    font-size: 34px;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.confidence{
-    font-size: 26px;
-    font-weight: bold;
-    color: #2563eb;
-    margin-top: 8px;
 }
 
 .sidebar-title{
@@ -92,42 +70,36 @@ st.markdown("""
     margin-bottom: 20px;
 }
 
+[data-testid="stSidebar"]{
+    background-color: white;
+}
+
+.result-card{
+    background-color: white;
+    padding: 30px;
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-top: 20px;
+}
+
 .info-box{
     background-color: white;
     padding: 25px;
     border-radius: 18px;
     border: 1px solid #e5e7eb;
     line-height: 1.8;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .disclaimer{
     margin-top: 20px;
     background-color: #fff4e5;
+    border: 1px solid #fcd34d;
     color: #b45309;
     padding: 15px;
     border-radius: 12px;
-    border: 1px solid #fcd34d;
     font-size: 14px;
-}
-
-[data-testid="stSidebar"]{
-    background-color: white;
-}
-
-.stButton > button{
-    width: 100%;
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 12px;
-    font-weight: bold;
-}
-
-.stButton > button:hover{
-    background-color: #1d4ed8;
-    color: white;
 }
 
 </style>
@@ -217,9 +189,6 @@ with st.sidebar:
 # =========================================================
 # MENU DETEKSI
 # =========================================================
-# =========================================================
-# MENU DETEKSI
-# =========================================================
 if menu == "🩺 Deteksi Penyakit Kulit":
 
     st.markdown(
@@ -252,87 +221,41 @@ if menu == "🩺 Deteksi Penyakit Kulit":
 
         with col2:
 
-            with st.spinner("Mendeteksi gambar..."):
+            try:
+                model = load_model()
 
-                try:
-                    model = load_model()
+                prediction, confidence = predict(image, model)
 
-                    prediction, confidence = predict(image, model)
+                emoji_map = {
+                    "Eczema": "🔵",
+                    "Herpes Zoster": "🔴",
+                    "Normal": "🟢",
+                    "Ringworm": "🟠"
+                }
 
-                    color_map = {
-                        "Eczema": "#3498db",
-                        "Herpes Zoster": "#e74c3c",
-                        "Normal": "#27ae60",
-                        "Ringworm": "#f39c12"
-                    }
+                st.markdown('<div class="result-card">', unsafe_allow_html=True)
 
-                    color = color_map[prediction]
+                st.write("### Hasil Klasifikasi")
 
-                    st.markdown(
-                        f"""
-                        <div style="
-                            background-color:white;
-                            padding:30px;
-                            border-radius:18px;
-                            border:1px solid #e5e7eb;
-                            box-shadow:0 2px 10px rgba(0,0,0,0.05);
-                            margin-top:10px;
-                        ">
+                st.markdown(
+                    f"## {emoji_map[prediction]} {prediction}"
+                )
 
-                            <div style="
-                                font-size:14px;
-                                color:gray;
-                                margin-bottom:10px;
-                            ">
-                                Hasil Klasifikasi
-                            </div>
+                st.metric(
+                    label="Confidence Score",
+                    value=f"{confidence*100:.2f}%"
+                )
 
-                            <div style="
-                                font-size:34px;
-                                font-weight:bold;
-                                color:{color};
-                                margin-bottom:25px;
-                            ">
-                                {prediction}
-                            </div>
+                st.markdown('</div>', unsafe_allow_html=True)
 
-                            <div style="
-                                font-size:14px;
-                                color:gray;
-                                margin-bottom:10px;
-                            ">
-                                Confidence Score
-                            </div>
+                st.markdown("""
+                <div class="disclaimer">
+                ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
+                </div>
+                """, unsafe_allow_html=True)
 
-                            <div style="
-                                font-size:28px;
-                                font-weight:bold;
-                                color:#2563eb;
-                            ">
-                                {confidence*100:.2f}%
-                            </div>
-
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-                    st.markdown("""
-                    <div style="
-                        margin-top:20px;
-                        background:#fff4e5;
-                        border:1px solid #fcd34d;
-                        color:#b45309;
-                        padding:15px;
-                        border-radius:12px;
-                        font-size:14px;
-                    ">
-                    ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                except Exception as e:
-                    st.error(f"Terjadi kesalahan: {e}")
+            except Exception as e:
+                st.error(f"Terjadi kesalahan: {e}")
 
 # =========================================================
 # MENU INFORMASI
@@ -374,8 +297,9 @@ elif menu == "📚 Informasi Penyakit":
         """
     }
 
-    st.markdown(f"""
-    <div class="info-box">
+    st.markdown(
+        f"""
+        <div class="info-box">
 
         <h2>{pilihan}</h2>
 
@@ -383,5 +307,7 @@ elif menu == "📚 Informasi Penyakit":
         {info[pilihan]}
         </p>
 
-    </div>
-    """, unsafe_allow_html=True)
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
