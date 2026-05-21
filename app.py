@@ -217,6 +217,9 @@ with st.sidebar:
 # =========================================================
 # MENU DETEKSI
 # =========================================================
+# =========================================================
+# MENU DETEKSI
+# =========================================================
 if menu == "🩺 Deteksi Penyakit Kulit":
 
     st.markdown(
@@ -249,50 +252,87 @@ if menu == "🩺 Deteksi Penyakit Kulit":
 
         with col2:
 
-            try:
-                model = load_model()
+            with st.spinner("Mendeteksi gambar..."):
 
-                prediction, confidence = predict(image, model)
+                try:
+                    model = load_model()
 
-                color_map = {
-                    "Eczema": "#3498db",
-                    "Herpes Zoster": "#e74c3c",
-                    "Normal": "#27ae60",
-                    "Ringworm": "#f39c12"
-                }
+                    prediction, confidence = predict(image, model)
 
-                color = color_map[prediction]
+                    color_map = {
+                        "Eczema": "#3498db",
+                        "Herpes Zoster": "#e74c3c",
+                        "Normal": "#27ae60",
+                        "Ringworm": "#f39c12"
+                    }
 
-                st.markdown(f"""
-                <div class="result-box">
+                    color = color_map[prediction]
 
-                    <div style="font-size:14px; color:gray;">
-                    Hasil Klasifikasi
+                    st.markdown(
+                        f"""
+                        <div style="
+                            background-color:white;
+                            padding:30px;
+                            border-radius:18px;
+                            border:1px solid #e5e7eb;
+                            box-shadow:0 2px 10px rgba(0,0,0,0.05);
+                            margin-top:10px;
+                        ">
+
+                            <div style="
+                                font-size:14px;
+                                color:gray;
+                                margin-bottom:10px;
+                            ">
+                                Hasil Klasifikasi
+                            </div>
+
+                            <div style="
+                                font-size:34px;
+                                font-weight:bold;
+                                color:{color};
+                                margin-bottom:25px;
+                            ">
+                                {prediction}
+                            </div>
+
+                            <div style="
+                                font-size:14px;
+                                color:gray;
+                                margin-bottom:10px;
+                            ">
+                                Confidence Score
+                            </div>
+
+                            <div style="
+                                font-size:28px;
+                                font-weight:bold;
+                                color:#2563eb;
+                            ">
+                                {confidence*100:.2f}%
+                            </div>
+
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    st.markdown("""
+                    <div style="
+                        margin-top:20px;
+                        background:#fff4e5;
+                        border:1px solid #fcd34d;
+                        color:#b45309;
+                        padding:15px;
+                        border-radius:12px;
+                        font-size:14px;
+                    ">
+                    ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
                     </div>
+                    """, unsafe_allow_html=True)
 
-                    <div class="result-title" style="color:{color};">
-                    {prediction}
-                    </div>
-
-                    <div style="margin-top:25px; font-size:14px; color:gray;">
-                    Confidence Score
-                    </div>
-
-                    <div class="confidence">
-                    {confidence*100:.2f}%
-                    </div>
-
-                </div>
-                """, unsafe_allow_html=True)
-
-                st.markdown("""
-                <div class="disclaimer">
-                ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
-                </div>
-                """, unsafe_allow_html=True)
-
-            except Exception as e:
-                st.error(f"Terjadi kesalahan: {e}")
+                except Exception as e:
+                    st.error(f"Terjadi kesalahan: {e}")
 
 # =========================================================
 # MENU INFORMASI
