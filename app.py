@@ -102,8 +102,30 @@ st.markdown("""
     font-size: 14px;
 }
 
+.block-container{
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+[data-testid="stSidebar"]{
+    background-color: white;
+    border-right: 1px solid #e5e7eb;
+}
+
+section[data-testid="stSidebar"]{
+    width: 280px !important;
+}
+
+.stFileUploader{
+    background: white;
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #e5e7eb;
+}
+
 </style>
 """, unsafe_allow_html=True)
+
 
 # =========================================================
 # LOAD MODEL
@@ -169,7 +191,7 @@ def predict(image, model):
 with st.sidebar:
 
     st.markdown(
-        '<div class="sidebar-title">🔬 Skin Disease Detection</div>',
+        '<div class="sidebar-title">Skin Disease Detection</div>',
         unsafe_allow_html=True
     )
 
@@ -181,8 +203,8 @@ with st.sidebar:
     menu = st.radio(
         "MENU",
         [
-            "🩺 Deteksi Penyakit Kulit",
-            "📚 Informasi Penyakit"
+            "Deteksi Penyakit Kulit",
+            "Informasi Penyakit"
         ]
     )
 
@@ -191,15 +213,17 @@ with st.sidebar:
 # =========================================================
 if menu == "🩺 Deteksi Penyakit Kulit":
 
-    st.markdown(
-        '<div class="main-title">Deteksi Penyakit Kulit</div>',
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div class="main-title">
+        Deteksi Penyakit Kulit
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown(
-        '<div class="sub-text">Upload gambar kulit untuk mendapatkan hasil prediksi AI</div>',
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div class="sub-text">
+        Upload gambar kulit untuk mendapatkan hasil prediksi AI
+    </div>
+    """, unsafe_allow_html=True)
 
     uploaded_file = st.file_uploader(
         "Upload gambar",
@@ -210,52 +234,93 @@ if menu == "🩺 Deteksi Penyakit Kulit":
 
         image = Image.open(uploaded_file)
 
-        col1, col2 = st.columns([1,1])
+        # langsung prediksi otomatis
+        model = load_model()
+        prediction, confidence = predict(image, model)
 
-        with col1:
+        color_map = {
+            "Eczema": "#3498db",
+            "Herpes Zoster": "#e74c3c",
+            "Normal": "#27ae60",
+            "Ringworm": "#f39c12"
+        }
+
+        color = color_map[prediction]
+
+        # layout lebih rapih
+        left_col, right_col = st.columns([1.1, 0.9], gap="large")
+
+        with left_col:
+
             st.image(
                 image,
                 caption="Gambar yang diupload",
                 use_container_width=True
             )
 
-        with col2:
+        with right_col:
 
-            try:
-                model = load_model()
+            st.markdown(f"""
+            <div style="
+                background:white;
+                padding:35px;
+                border-radius:20px;
+                border:1px solid #e5e7eb;
+                box-shadow:0 4px 12px rgba(0,0,0,0.06);
+                margin-top:20px;
+            ">
 
-                prediction, confidence = predict(image, model)
-
-                emoji_map = {
-                    "Eczema": "🔵",
-                    "Herpes Zoster": "🔴",
-                    "Normal": "🟢",
-                    "Ringworm": "🟠"
-                }
-
-                st.markdown('<div class="result-card">', unsafe_allow_html=True)
-
-                st.write("### Hasil Klasifikasi")
-
-                st.markdown(
-                    f"## {emoji_map[prediction]} {prediction}"
-                )
-
-                st.metric(
-                    label="Confidence Score",
-                    value=f"{confidence*100:.2f}%"
-                )
-
-                st.markdown('</div>', unsafe_allow_html=True)
-
-                st.markdown("""
-                <div class="disclaimer">
-                ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
+                <div style="
+                    font-size:15px;
+                    color:#6b7280;
+                    margin-bottom:12px;
+                ">
+                    Hasil Klasifikasi
                 </div>
-                """, unsafe_allow_html=True)
 
-            except Exception as e:
-                st.error(f"Terjadi kesalahan: {e}")
+                <div style="
+                    font-size:42px;
+                    font-weight:700;
+                    color:{color};
+                    margin-bottom:35px;
+                    line-height:1.1;
+                ">
+                    {prediction}
+                </div>
+
+                <div style="
+                    font-size:15px;
+                    color:#6b7280;
+                    margin-bottom:12px;
+                ">
+                    Confidence Score
+                </div>
+
+                <div style="
+                    font-size:34px;
+                    font-weight:700;
+                    color:#2563eb;
+                ">
+                    {confidence*100:.2f}%
+                </div>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+            st.markdown("""
+            <div style="
+                margin-top:18px;
+                background:#fff7ed;
+                border:1px solid #fdba74;
+                color:#c2410c;
+                padding:14px;
+                border-radius:14px;
+                font-size:14px;
+                line-height:1.5;
+            ">
+            ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
+            </div>
+            """, unsafe_allow_html=True)
 
 # =========================================================
 # MENU INFORMASI
