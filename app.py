@@ -11,7 +11,7 @@ import os
 # PAGE CONFIG
 # =========================================================
 st.set_page_config(
-    page_title="DermaScan",
+    page_title="Skin Disease Detection",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -35,80 +35,98 @@ if not os.path.exists(MODEL_PATH):
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
 # =========================================================
-# CSS
+# CUSTOM CSS
 # =========================================================
 st.markdown("""
 <style>
 
-body {
+.stApp {
     background-color: #f5f7fa;
 }
 
 .main-title{
     font-size: 2.2rem;
     font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 10px;
+    color: #1f2937;
+    margin-bottom: 8px;
 }
 
 .sub-text{
-    color: #555;
+    color: #6b7280;
     margin-bottom: 25px;
+    font-size: 15px;
 }
 
 .result-box{
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    border: 1px solid #e0e0e0;
+    background-color: white;
+    padding: 30px;
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
     margin-top: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
 }
 
 .result-title{
-    font-size: 28px;
+    font-size: 34px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .confidence{
-    font-size: 22px;
+    font-size: 26px;
     font-weight: bold;
-    color: #1f77ff;
+    color: #2563eb;
+    margin-top: 8px;
 }
 
 .sidebar-title{
     font-size: 24px;
     font-weight: bold;
-    color: #1f77ff;
+    color: #2563eb;
     margin-bottom: 5px;
 }
 
 .sidebar-sub{
-    color: #666;
+    color: #6b7280;
     font-size: 14px;
     margin-bottom: 20px;
 }
 
 .info-box{
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 20px;
+    background-color: white;
+    padding: 25px;
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    line-height: 1.8;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.disclaimer{
+    margin-top: 20px;
+    background-color: #fff4e5;
+    color: #b45309;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #fcd34d;
+    font-size: 14px;
+}
+
+[data-testid="stSidebar"]{
+    background-color: white;
 }
 
 .stButton > button{
     width: 100%;
-    background-color: #1f77ff;
+    background-color: #2563eb;
     color: white;
-    border-radius: 10px;
     border: none;
+    border-radius: 10px;
     padding: 12px;
     font-weight: bold;
 }
 
 .stButton > button:hover{
-    background-color: #005fe0;
+    background-color: #1d4ed8;
     color: white;
 }
 
@@ -116,7 +134,7 @@ body {
 """, unsafe_allow_html=True)
 
 # =========================================================
-# MODEL
+# LOAD MODEL
 # =========================================================
 @st.cache_resource
 def load_model():
@@ -179,18 +197,21 @@ def predict(image, model):
 with st.sidebar:
 
     st.markdown(
-        '<div class="sidebar-title">🔬 DermaScan</div>',
+        '<div class="sidebar-title">🔬 Skin Disease Detection</div>',
         unsafe_allow_html=True
     )
 
     st.markdown(
-        '<div class="sidebar-sub">Skin Disease Detection</div>',
+        '<div class="sidebar-sub">AI Based Skin Disease Classification</div>',
         unsafe_allow_html=True
     )
 
     menu = st.radio(
         "MENU",
-        ["🩺 Deteksi Penyakit Kulit", "📚 Informasi Penyakit"]
+        [
+            "🩺 Deteksi Penyakit Kulit",
+            "📚 Informasi Penyakit"
+        ]
     )
 
 # =========================================================
@@ -228,50 +249,50 @@ if menu == "🩺 Deteksi Penyakit Kulit":
 
         with col2:
 
-            if st.button("Deteksi Sekarang"):
+            try:
+                model = load_model()
 
-                try:
-                    model = load_model()
+                prediction, confidence = predict(image, model)
 
-                    prediction, confidence = predict(image, model)
+                color_map = {
+                    "Eczema": "#3498db",
+                    "Herpes Zoster": "#e74c3c",
+                    "Normal": "#27ae60",
+                    "Ringworm": "#f39c12"
+                }
 
-                    color_map = {
-                        "Eczema": "#3498db",
-                        "Herpes Zoster": "#e74c3c",
-                        "Normal": "#27ae60",
-                        "Ringworm": "#f39c12"
-                    }
+                color = color_map[prediction]
 
-                    color = color_map[prediction]
+                st.markdown(f"""
+                <div class="result-box">
 
-                    st.markdown(f"""
-                    <div class="result-box">
-
-                        <div style="font-size:14px; color:gray;">
-                        Hasil Klasifikasi
-                        </div>
-
-                        <div class="result-title" style="color:{color};">
-                        {prediction}
-                        </div>
-
-                        <div style="margin-top:20px; font-size:14px; color:gray;">
-                        Confidence Score
-                        </div>
-
-                        <div class="confidence">
-                        {confidence*100:.2f}%
-                        </div>
-
+                    <div style="font-size:14px; color:gray;">
+                    Hasil Klasifikasi
                     </div>
-                    """, unsafe_allow_html=True)
 
-                    st.warning(
-                        "Hasil ini hanya untuk screening awal dan bukan diagnosis medis."
-                    )
+                    <div class="result-title" style="color:{color};">
+                    {prediction}
+                    </div>
 
-                except Exception as e:
-                    st.error(f"Terjadi kesalahan: {e}")
+                    <div style="margin-top:25px; font-size:14px; color:gray;">
+                    Confidence Score
+                    </div>
+
+                    <div class="confidence">
+                    {confidence*100:.2f}%
+                    </div>
+
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("""
+                <div class="disclaimer">
+                ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
+                </div>
+                """, unsafe_allow_html=True)
+
+            except Exception as e:
+                st.error(f"Terjadi kesalahan: {e}")
 
 # =========================================================
 # MENU INFORMASI
@@ -284,24 +305,27 @@ elif menu == "📚 Informasi Penyakit":
     )
 
     pilihan = st.selectbox(
-        "Pilih penyakit",
+        "Pilih Penyakit",
         CLASSES
     )
 
     info = {
+
         "Eczema": """
         Eczema adalah kondisi kulit yang menyebabkan kulit merah,
-        gatal, kering, dan iritasi.
+        gatal, kering, dan iritasi. Penyakit ini dapat dipicu oleh
+        alergi, iritasi, maupun faktor lingkungan.
         """,
 
         "Herpes Zoster": """
         Herpes Zoster adalah infeksi virus yang menyebabkan ruam
-        dan rasa nyeri pada kulit.
+        dan rasa nyeri pada kulit. Penyakit ini muncul akibat
+        reaktivasi virus cacar air.
         """,
 
         "Normal": """
-        Kulit berada dalam kondisi normal dan tidak ditemukan
-        indikasi penyakit kulit.
+        Kulit berada dalam kondisi normal dan sehat tanpa adanya
+        indikasi penyakit kulit pada gambar yang diunggah.
         """,
 
         "Ringworm": """
@@ -313,9 +337,9 @@ elif menu == "📚 Informasi Penyakit":
     st.markdown(f"""
     <div class="info-box">
 
-        <h3>{pilihan}</h3>
+        <h2>{pilihan}</h2>
 
-        <p style="line-height:1.8;">
+        <p>
         {info[pilihan]}
         </p>
 
