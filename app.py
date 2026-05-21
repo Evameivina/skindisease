@@ -4,9 +4,9 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # CONFIG
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 IMG_SIZE = 224
 MODEL_PATH = "convnext_skin_state_dict.pth"
 
@@ -19,90 +19,92 @@ CLASSES = [
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # INFORMASI PENYAKIT
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 DISEASE_INFO = {
+
     "Eczema": {
         "icon": "🔴",
         "color": "#E05C5C",
         "bg": "#FFF0F0",
-        "deskripsi": (
-            "Kondisi kulit kronis yang menyebabkan "
-            "peradangan, kemerahan, dan rasa gatal."
-        ),
+
+        "deskripsi":
+        "Eczema atau dermatitis atopik adalah kondisi kulit "
+        "yang menyebabkan kulit kering, gatal, dan meradang.",
+
         "gejala": [
-            "Kulit kering dan gatal",
+            "Kulit kering",
+            "Gatal berlebihan",
             "Kemerahan",
-            "Kulit bersisik",
-            "Peradangan kulit"
+            "Kulit mengelupas"
         ],
-        "penanganan": (
-            "Gunakan pelembap secara rutin dan "
-            "hindari pemicu alergi."
-        ),
+
+        "penanganan":
+        "Gunakan pelembap secara rutin dan hindari pemicu alergi."
     },
 
     "Herpes Zoster": {
         "icon": "🟠",
         "color": "#E07A2F",
         "bg": "#FFF5EC",
-        "deskripsi": (
-            "Infeksi virus akibat reaktivasi "
-            "virus varicella-zoster."
-        ),
+
+        "deskripsi":
+        "Herpes Zoster disebabkan oleh reaktivasi virus "
+        "varicella-zoster yang menimbulkan ruam nyeri.",
+
         "gejala": [
             "Ruam merah",
-            "Nyeri atau panas",
+            "Nyeri pada kulit",
             "Lepuhan berisi cairan",
-            "Kesemutan"
+            "Sensasi panas"
         ],
-        "penanganan": (
-            "Segera konsultasikan ke dokter "
-            "untuk pengobatan antivirus."
-        ),
+
+        "penanganan":
+        "Konsultasikan ke dokter untuk terapi antivirus."
     },
 
     "Normal": {
         "icon": "🟢",
         "color": "#2E9E6B",
         "bg": "#EDFAF3",
-        "deskripsi": (
-            "Kulit berada dalam kondisi normal "
-            "tanpa indikasi penyakit kulit."
-        ),
+
+        "deskripsi":
+        "Kulit berada dalam kondisi normal "
+        "tanpa indikasi penyakit kulit.",
+
         "gejala": [
-            "Tidak ditemukan tanda penyakit kulit"
+            "Tidak ada tanda penyakit kulit"
         ],
-        "penanganan": (
-            "Tetap jaga kebersihan dan kesehatan kulit."
-        ),
+
+        "penanganan":
+        "Jaga kebersihan dan kesehatan kulit."
     },
 
     "Ringworm": {
         "icon": "🟣",
         "color": "#7B61D4",
         "bg": "#F4F1FF",
-        "deskripsi": (
-            "Infeksi jamur pada kulit dengan "
-            "pola melingkar."
-        ),
+
+        "deskripsi":
+        "Ringworm adalah infeksi jamur pada kulit "
+        "yang membentuk pola melingkar.",
+
         "gejala": [
             "Ruam melingkar",
-            "Gatal",
             "Kulit bersisik",
-            "Tepi ruam jelas"
+            "Gatal",
+            "Kemerahan"
         ],
-        "penanganan": (
-            "Gunakan krim antijamur dan "
-            "jaga kebersihan kulit."
-        ),
-    },
+
+        "penanganan":
+        "Gunakan krim antijamur dan jaga kebersihan kulit."
+    }
 }
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # PAGE CONFIG
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="SkinScan",
     page_icon="🔬",
@@ -110,9 +112,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # CSS
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 
@@ -122,24 +124,17 @@ html, body, [class*="css"] {
     font-family: 'DM Sans', sans-serif;
 }
 
-#MainMenu {
-    visibility: hidden;
-}
+/* HIDE STREAMLIT */
 
-footer {
-    visibility: hidden;
-}
-
-header {
-    visibility: hidden;
-}
-
-.block-container {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-}
+#MainMenu {visibility:hidden;}
+footer {visibility:hidden;}
+header {visibility:hidden;}
 
 /* SIDEBAR */
+
+[data-testid="collapsedControl"] {
+    display: none;
+}
 
 section[data-testid="stSidebar"] {
     background: #0F1117;
@@ -148,30 +143,32 @@ section[data-testid="stSidebar"] {
     max-width: 300px !important;
 }
 
+/* SIDEBAR TEXT */
+
 section[data-testid="stSidebar"] * {
-    color: #F3F4F6 !important;
+    color: white !important;
 }
 
 /* BRAND */
 
 .sidebar-brand {
     text-align: center;
-    padding: 1rem 0 2rem 0;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
     border-bottom: 1px solid #1E2130;
     margin-bottom: 2rem;
 }
 
-.sidebar-brand .icon {
+.brand-icon {
     font-size: 3rem;
 }
 
-.sidebar-brand .title {
-    font-family: 'DM Serif Display', serif;
+.brand-title {
     font-size: 2rem;
-    margin-top: 0.3rem;
+    font-family: 'DM Serif Display', serif;
 }
 
-.sidebar-brand .subtitle {
+.brand-subtitle {
     color: #9CA3AF !important;
     font-size: 0.8rem;
     letter-spacing: 0.08em;
@@ -184,10 +181,9 @@ div[role="radiogroup"] > label {
     background: #1E2130;
     padding: 14px;
     border-radius: 14px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     border: 1px solid transparent;
     transition: 0.2s;
-    cursor: pointer;
 }
 
 div[role="radiogroup"] > label:hover {
@@ -200,19 +196,17 @@ div[role="radiogroup"] label p {
     font-weight: 500;
 }
 
-/* TITLE */
+/* PAGE TITLE */
 
 .page-title h1 {
     font-family: 'DM Serif Display', serif;
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
-    color: #111827;
 }
 
 .page-title p {
     color: #6B7280;
     margin-bottom: 2rem;
-    font-size: 1rem;
 }
 
 /* UPLOAD */
@@ -225,31 +219,29 @@ div[role="radiogroup"] label p {
     background: #FAFAFA;
 }
 
-.upload-box .icon {
+.upload-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
 }
 
-/* RESULT CARD */
+/* RESULT */
 
 .result-card {
     border-radius: 18px;
     padding: 1.5rem;
-    border: 1.5px solid;
-    margin-bottom: 1.5rem;
+    border: 1px solid;
+    margin-bottom: 1rem;
 }
 
-.result-label {
+.result-title {
     font-size: 0.8rem;
     text-transform: uppercase;
     color: #6B7280;
-    letter-spacing: 0.08em;
 }
 
 .result-name {
-    font-family: 'DM Serif Display', serif;
     font-size: 2rem;
-    margin-top: 0.3rem;
+    font-family: 'DM Serif Display', serif;
 }
 
 .result-confidence {
@@ -262,14 +254,13 @@ div[role="radiogroup"] label p {
 .prob-label {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
 }
 
 .prob-bg {
     height: 8px;
-    border-radius: 999px;
     background: #E5E7EB;
+    border-radius: 999px;
     overflow: hidden;
     margin-bottom: 0.8rem;
 }
@@ -282,39 +273,33 @@ div[role="radiogroup"] label p {
 /* INFO CARD */
 
 .info-card {
-    border-radius: 18px;
+    border-radius: 20px;
     padding: 1.5rem;
     border: 1px solid;
-    margin-bottom: 1rem;
+    margin-top: 1rem;
 }
 
 .info-title {
+    font-size: 1.8rem;
     font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem;
-    margin-bottom: 0.8rem;
-}
-
-.info-desc {
-    color: #4B5563;
-    line-height: 1.7;
+    margin-bottom: 1rem;
 }
 
 .section-title {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     color: #6B7280;
-    letter-spacing: 0.08em;
     font-weight: 700;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# MODEL
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+# LOAD MODEL
+# ─────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_model():
 
@@ -343,9 +328,9 @@ def load_model():
 
     return model.to(device)
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # TRANSFORM
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 transform = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
     transforms.ToTensor(),
@@ -355,9 +340,9 @@ transform = transforms.Compose([
     )
 ])
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # PREDICT
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 def predict(image):
 
     tensor = transform(image).unsqueeze(0).to(device)
@@ -370,16 +355,26 @@ def predict(image):
 
     return CLASSES[probs.argmax()], probs
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # SIDEBAR
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 with st.sidebar:
 
     st.markdown("""
     <div class="sidebar-brand">
-        <div class="icon">🔬</div>
-        <div class="title">SkinScan</div>
-        <div class="subtitle">Skin Disease Detection</div>
+
+        <div class="brand-icon">
+            🔬
+        </div>
+
+        <div class="brand-title">
+            SkinScan
+        </div>
+
+        <div class="brand-subtitle">
+            Skin Disease Detection
+        </div>
+
     </div>
     """, unsafe_allow_html=True)
 
@@ -392,23 +387,23 @@ with st.sidebar:
         label_visibility="collapsed"
     )
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # MENU DETEKSI
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 if "Deteksi" in menu:
 
     st.markdown("""
     <div class="page-title">
         <h1>Deteksi Penyakit Kulit</h1>
         <p>
-            Unggah gambar kulit untuk mendapatkan hasil prediksi
-            menggunakan model AI ConvNeXt.
+            Upload gambar kulit untuk mendapatkan
+            hasil prediksi dari model AI.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
     uploaded = st.file_uploader(
-        "Upload Gambar",
+        "Upload",
         type=["jpg", "jpeg", "png"],
         label_visibility="collapsed"
     )
@@ -417,9 +412,17 @@ if "Deteksi" in menu:
 
         st.markdown("""
         <div class="upload-box">
-            <div class="icon">🖼️</div>
+
+            <div class="upload-icon">
+                🖼️
+            </div>
+
             <h3>Seret & Lepas Gambar di Sini</h3>
-            <p>atau klik Browse Files • JPG, JPEG, PNG</p>
+
+            <p>
+                atau klik Browse Files • JPG, JPEG, PNG
+            </p>
+
         </div>
         """, unsafe_allow_html=True)
 
@@ -427,7 +430,7 @@ if "Deteksi" in menu:
 
         image = Image.open(uploaded).convert("RGB")
 
-        col1, col2 = st.columns([1, 1])
+        col1, col2 = st.columns([1,1])
 
         with col1:
             st.image(image, use_container_width=True)
@@ -436,140 +439,147 @@ if "Deteksi" in menu:
 
             with st.spinner("Menganalisis gambar..."):
 
-                try:
+                label, probs = predict(image)
 
-                    label, probs = predict(image)
+                info = DISEASE_INFO[label]
 
-                    info = DISEASE_INFO[label]
+                confidence = float(probs.max()) * 100
 
-                    confidence = float(probs.max()) * 100
+                st.markdown(f"""
+                <div class="result-card"
+                     style="
+                     background:{info['bg']};
+                     border-color:{info['color']};
+                     ">
+
+                    <div class="result-title">
+                        Hasil Prediksi
+                    </div>
+
+                    <div class="result-name"
+                         style="color:{info['color']}">
+
+                        {info['icon']} {label}
+
+                    </div>
+
+                    <div class="result-confidence">
+
+                        Confidence:
+                        <strong>{confidence:.2f}%</strong>
+
+                    </div>
+
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("### Probabilitas")
+
+                for i, cls in enumerate(CLASSES):
+
+                    percentage = float(probs[i]) * 100
+
+                    color = DISEASE_INFO[cls]["color"]
 
                     st.markdown(f"""
-                    <div class="result-card"
-                         style="background:{info['bg']};
-                                border-color:{info['color']}">
+                    <div class="prob-label">
 
-                        <div class="result-label">
-                            Hasil Prediksi
-                        </div>
+                        <span>
+                            {DISEASE_INFO[cls]['icon']} {cls}
+                        </span>
 
-                        <div class="result-name"
-                             style="color:{info['color']}">
-                             {info['icon']} {label}
-                        </div>
+                        <span>
+                            {percentage:.1f}%
+                        </span>
 
-                        <div class="result-confidence">
-                            Confidence:
-                            <strong>{confidence:.2f}%</strong>
+                    </div>
+
+                    <div class="prob-bg">
+
+                        <div class="prob-fill"
+                             style="
+                             width:{percentage}%;
+                             background:{color};
+                             ">
+
                         </div>
 
                     </div>
                     """, unsafe_allow_html=True)
 
-                    st.markdown("### Probabilitas")
+                if label != "Normal":
 
-                    for i, cls in enumerate(CLASSES):
+                    st.warning(
+                        "Hasil ini bukan diagnosis medis. "
+                        "Silakan konsultasikan dengan dokter."
+                    )
 
-                        percentage = float(probs[i]) * 100
-
-                        color = DISEASE_INFO[cls]["color"]
-
-                        st.markdown(f"""
-                        <div class="prob-label">
-                            <span>
-                                {DISEASE_INFO[cls]['icon']} {cls}
-                            </span>
-
-                            <span>
-                                {percentage:.1f}%
-                            </span>
-                        </div>
-
-                        <div class="prob-bg">
-                            <div class="prob-fill"
-                                 style="
-                                 width:{percentage}%;
-                                 background:{color};
-                                 ">
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
-
-                    if label != "Normal":
-
-                        st.warning(
-                            "Hasil ini bukan diagnosis medis. "
-                            "Silakan konsultasikan dengan dokter kulit."
-                        )
-
-                except Exception as e:
-
-                    st.error(f"Error: {e}")
-
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # MENU INFORMASI
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 elif "Informasi" in menu:
 
     st.markdown("""
     <div class="page-title">
+
         <h1>Informasi Penyakit Kulit</h1>
+
         <p>
-            Penjelasan singkat mengenai penyakit kulit
-            yang dapat dideteksi model.
+            Pilih penyakit untuk melihat
+            informasi lengkap.
         </p>
+
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
+    selected = st.selectbox(
+        "Pilih Penyakit",
+        CLASSES
+    )
 
-    cols = [col1, col2]
+    info = DISEASE_INFO[selected]
 
-    for idx, (cls, info) in enumerate(DISEASE_INFO.items()):
+    gejala_html = "".join([
+        f"<li>{g}</li>"
+        for g in info["gejala"]
+    ])
 
-        with cols[idx % 2]:
+    st.markdown(f"""
+    <div class="info-card"
+         style="
+         background:{info['bg']};
+         border-color:{info['color']}40;
+         ">
 
-            gejala_html = "".join([
-                f"<li>{g}</li>"
-                for g in info["gejala"]
-            ])
+        <div class="info-title"
+             style="color:{info['color']}">
 
-            st.markdown(f"""
-            <div class="info-card"
-                 style="
-                 background:{info['bg']};
-                 border-color:{info['color']}40;
-                 ">
+            {info['icon']} {selected}
 
-                <div class="info-title"
-                     style="color:{info['color']}">
+        </div>
 
-                    {info['icon']} {cls}
+        <p>
+            {info['deskripsi']}
+        </p>
 
-                </div>
+        <div class="section-title">
+            Gejala Umum
+        </div>
 
-                <div class="info-desc">
-                    {info['deskripsi']}
-                </div>
+        <ul>
+            {gejala_html}
+        </ul>
 
-                <div class="section-title">
-                    Gejala Umum
-                </div>
+        <div class="section-title">
+            Penanganan
+        </div>
 
-                <ul>
-                    {gejala_html}
-                </ul>
+        <p>
+            {info['penanganan']}
+        </p>
 
-                <div class="section-title">
-                    Penanganan
-                </div>
-
-                <p>
-                    {info['penanganan']}
-                </p>
-
-            </div>
-            """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
     st.info(
         "Informasi ini bersifat edukatif dan "
