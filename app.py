@@ -3,13 +3,13 @@ import torch
 import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
-
-# Config
+ 
+# ── Config ────────────────────────────────────────────────────────────────────
 IMG_SIZE   = 224
 MODEL_PATH = "convnext_skin_state_dict.pth"
 CLASSES    = ["Eczema", "Herpes Zoster", "Normal", "Ringworm"]
 device     = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+ 
 DISEASE_INFO = {
     "Eczema": {
         "icon": "🔴", "color": "#E05C5C", "bg": "#FFF0F0",
@@ -36,8 +36,8 @@ DISEASE_INFO = {
         "penanganan": "Gunakan krim antijamur dari apotek. Jaga kebersihan, keringkan kulit, hindari berbagi handuk atau pakaian.",
     },
 }
-
-# Model
+ 
+# ── Model ─────────────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_model():
     m = models.convnext_tiny(weights=None)
@@ -54,37 +54,37 @@ def load_model():
     m.load_state_dict(state)
     m.eval()
     return m.to(device)
-
+ 
 transform = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
-
+ 
 def predict(image):
     tensor = transform(image).unsqueeze(0).to(device)
     with torch.no_grad():
         out   = load_model()(tensor)
         probs = torch.softmax(out, dim=1)[0].cpu().numpy()
     return CLASSES[probs.argmax()], probs
-
-# Page config 
+ 
+# ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="SkinScan — Deteksi Penyakit Kulit",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-# CSS
+ 
+# ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
-
+ 
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding-top: 2rem; padding-bottom: 2rem; }
-
+ 
 section[data-testid="stSidebar"] {
     background: #0F1117;
     border-right: 1px solid #1E2130;
@@ -159,8 +159,8 @@ section[data-testid="stSidebar"] .stSelectbox label {
 .pbox { background: rgba(0,0,0,0.03); border-radius: 8px; padding: 0.7rem 0.9rem; font-size: 0.84rem; color: #4B5563; line-height: 1.65; }
 </style>
 """, unsafe_allow_html=True)
-
-# Sidebar 
+ 
+# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
     <div class="sidebar-brand">
@@ -169,12 +169,12 @@ with st.sidebar:
         <span class="s-sub">Skin Disease Detection</span>
     </div>
     """, unsafe_allow_html=True)
-
+ 
     menu = st.selectbox("MENU", ["🩺  Deteksi Penyakit Kulit", "📖  Informasi Penyakit"])
-
-
-
-# Deteksi
+ 
+ 
+ 
+# ── Deteksi ───────────────────────────────────────────────────────────────────
 if "Deteksi" in menu:
     st.markdown("""
     <div class="page-hd">
@@ -182,9 +182,9 @@ if "Deteksi" in menu:
         <p>Unggah foto kulit untuk mendapatkan prediksi kondisi beserta confidence score dari model.</p>
     </div>
     """, unsafe_allow_html=True)
-
+ 
     uploaded = st.file_uploader("Upload gambar", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
-
+ 
     if not uploaded:
         st.markdown("""
         <div class="upload-hint">
@@ -204,7 +204,7 @@ if "Deteksi" in menu:
                     label, probs = predict(image)
                     info = DISEASE_INFO[label]
                     conf = float(probs.max()) * 100
-
+ 
                     st.markdown(f"""
                     <div class="res-card" style="border-color:{info['color']};background:{info['bg']}">
                         <div class="res-lbl">Hasil Prediksi</div>
@@ -212,7 +212,7 @@ if "Deteksi" in menu:
                         <div class="res-conf">Confidence: <strong style="color:{info['color']}">{conf:.1f}%</strong></div>
                     </div>
                     """, unsafe_allow_html=True)
-
+ 
                     st.markdown("<div class='res-lbl' style='margin-bottom:0.75rem'>Probabilitas per Kelas</div>", unsafe_allow_html=True)
                     for i, cls in enumerate(CLASSES):
                         pct = float(probs[i]) * 100
@@ -221,18 +221,18 @@ if "Deteksi" in menu:
                         <div class="prob-lbl"><span>{DISEASE_INFO[cls]['icon']} {cls}</span><span>{pct:.1f}%</span></div>
                         <div class="prob-bg"><div class="prob-fill" style="width:{pct}%;background:{c}"></div></div>
                         """, unsafe_allow_html=True)
-
+ 
                     if label != "Normal":
                         st.markdown("""
                         <div class="disc">⚠️ Hasil ini <strong>bukan diagnosis medis</strong>.
                         Segera konsultasikan ke dokter kulit untuk pemeriksaan lebih lanjut.</div>
                         """, unsafe_allow_html=True)
-
+ 
                 except Exception as e:
                     st.error(f"Gagal memuat model: {e}")
                     st.caption(f"Pastikan `{MODEL_PATH}` berada di folder yang sama dengan `app.py`.")
-
-# Informasi 
+ 
+# ── Informasi ─────────────────────────────────────────────────────────────────
 elif "Informasi" in menu:
     st.markdown("""
     <div class="page-hd">
@@ -240,7 +240,7 @@ elif "Informasi" in menu:
         <p>Penjelasan singkat setiap kondisi kulit yang dapat dikenali oleh model.</p>
     </div>
     """, unsafe_allow_html=True)
-
+ 
     col_a, col_b = st.columns(2, gap="medium")
     cols = [col_a, col_b]
     for idx, (cls, info) in enumerate(DISEASE_INFO.items()):
@@ -262,7 +262,7 @@ elif "Informasi" in menu:
                 <div class="pbox">{info['penanganan']}</div>
             </div>
             """, unsafe_allow_html=True)
-
+ 
     st.markdown("""
     <div class="disc">
         ⚠️ Informasi di atas bersifat <strong>edukatif</strong>.
