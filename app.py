@@ -4,7 +4,7 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 
-# ── Config ────────────────────────────────────────────────────────────────────
+# Config
 IMG_SIZE   = 224
 MODEL_PATH = "convnext_skin_state_dict.pth"
 CLASSES    = ["Eczema", "Herpes Zoster", "Normal", "Ringworm"]
@@ -37,7 +37,7 @@ DISEASE_INFO = {
     },
 }
 
-# ── Model ─────────────────────────────────────────────────────────────────────
+# Model
 @st.cache_resource
 def load_model():
     m = models.convnext_tiny(weights=None)
@@ -50,7 +50,7 @@ def load_model():
         nn.Dropout(0.5),
         nn.Linear(256, len(CLASSES))
     )
-    state = torch.load(MODEL_PATH, map_location=device)
+    state = torch.load(MODEL_PATH, map_location=device, weights_only=False)
     m.load_state_dict(state)
     m.eval()
     return m.to(device)
@@ -68,7 +68,7 @@ def predict(image):
         probs = torch.softmax(out, dim=1)[0].cpu().numpy()
     return CLASSES[probs.argmax()], probs
 
-# ── Page config ───────────────────────────────────────────────────────────────
+# Page config 
 st.set_page_config(
     page_title="SkinScan — Deteksi Penyakit Kulit",
     page_icon="🔬",
@@ -76,7 +76,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
+# CSS
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -160,7 +160,7 @@ section[data-testid="stSidebar"] .stSelectbox label {
 </style>
 """, unsafe_allow_html=True)
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
+# Sidebar 
 with st.sidebar:
     st.markdown("""
     <div class="sidebar-brand">
@@ -172,17 +172,9 @@ with st.sidebar:
 
     menu = st.selectbox("MENU", ["🩺  Deteksi Penyakit Kulit", "📖  Informasi Penyakit"])
 
-    st.markdown("---")
-    st.markdown("""
-    <div style="padding:0.25rem 0">
-        <div style="font-size:0.68rem;color:#5A6080;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:0.6rem">Model Info</div>
-        <span class="chip">🧠 ConvNeXt-Tiny</span>
-        <span class="chip">📊 4 Kelas</span>
-        <span class="chip">✅ 99.57%</span>
-    </div>
-    """, unsafe_allow_html=True)
 
-# ── Deteksi ───────────────────────────────────────────────────────────────────
+
+# Deteksi
 if "Deteksi" in menu:
     st.markdown("""
     <div class="page-hd">
@@ -240,7 +232,7 @@ if "Deteksi" in menu:
                     st.error(f"Gagal memuat model: {e}")
                     st.caption(f"Pastikan `{MODEL_PATH}` berada di folder yang sama dengan `app.py`.")
 
-# ── Informasi ─────────────────────────────────────────────────────────────────
+# Informasi 
 elif "Informasi" in menu:
     st.markdown("""
     <div class="page-hd">
