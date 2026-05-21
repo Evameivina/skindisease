@@ -20,216 +20,103 @@ st.set_page_config(
 # =========================================================
 # CONFIG
 # =========================================================
-IMG_SIZE = 224
+CLASSES = ["Eczema", "Herpes Zoster", "Normal", "Ringworm"]
+
+MODEL_URL = "https://drive.google.com/uc?id=1s2BhRSSuUTRpuANjXkzTYSEAi_wKTuLR"
 MODEL_PATH = "convnext_skin_state_dict.pth"
 
-# Google Drive File ID
-FILE_ID = "1s2BhRSSuUTRpuANjXkzTYSEAi_wKTuLR"
-
-CLASSES = [
-    "Eczema",
-    "Herpes Zoster",
-    "Normal",
-    "Ringworm"
-]
-
-device = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # =========================================================
 # DOWNLOAD MODEL
 # =========================================================
-@st.cache_resource
-def download_model():
-
-    if not os.path.exists(MODEL_PATH):
-
-        with st.spinner("Mengunduh model..."):
-
-            url = f"https://drive.google.com/uc?id={FILE_ID}"
-
-            gdown.download(
-                url,
-                MODEL_PATH,
-                quiet=False
-            )
-
-download_model()
+if not os.path.exists(MODEL_PATH):
+    with st.spinner("Mengunduh model dari Google Drive..."):
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
 # =========================================================
-# DISEASE INFO
-# =========================================================
-DISEASE_INFO = {
-
-    "Eczema": {
-        "icon": "💧",
-        "color": "#4A90D9",
-        "description": "Eczema adalah kondisi kulit yang menyebabkan peradangan, gatal, dan kemerahan."
-    },
-
-    "Herpes Zoster": {
-        "icon": "⚡",
-        "color": "#E74C3C",
-        "description": "Herpes Zoster merupakan infeksi virus yang menyebabkan ruam dan nyeri."
-    },
-
-    "Normal": {
-        "icon": "✅",
-        "color": "#27AE60",
-        "description": "Kulit berada dalam kondisi normal dan sehat."
-    },
-
-    "Ringworm": {
-        "icon": "🔄",
-        "color": "#F39C12",
-        "description": "Ringworm adalah infeksi jamur pada kulit yang berbentuk melingkar."
-    }
-
-}
-
-# =========================================================
-# CUSTOM CSS
+# CSS
 # =========================================================
 st.markdown("""
 <style>
 
-.stApp{
-    background:#0D1117;
-    color:#E6EDF3;
+body {
+    background-color: #f5f7fa;
 }
 
-/* =========================
-SIDEBAR
-========================= */
-section[data-testid="stSidebar"]{
-    background:#11161D;
-    border-right:1px solid #30363D;
-}
-
-section[data-testid="stSidebar"] *{
-    color:#E6EDF3 !important;
-}
-
-/* =========================
-TITLE
-========================= */
 .main-title{
-    font-size:42px;
-    font-weight:700;
-    color:#58A6FF;
-    margin-bottom:0px;
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 10px;
 }
 
-.sub-title{
-    color:#8B949E;
-    margin-bottom:30px;
+.sub-text{
+    color: #555;
+    margin-bottom: 25px;
 }
 
-/* =========================
-CARD
-========================= */
-.custom-card{
-    background:#161B22;
-    border:1px solid #30363D;
-    border-radius:20px;
-    padding:28px;
-    margin-bottom:20px;
-    box-shadow:0 0 20px rgba(0,0,0,0.25);
+.result-box{
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid #e0e0e0;
+    margin-top: 10px;
 }
 
-/* =========================
-RESULT
-========================= */
 .result-title{
-    font-size:36px;
-    font-weight:700;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
-.result-score{
-    font-size:52px;
-    font-weight:700;
-    margin-top:10px;
+.confidence{
+    font-size: 22px;
+    font-weight: bold;
+    color: #1f77ff;
 }
 
-/* =========================
-UPLOAD
-========================= */
-[data-testid="stFileUploader"]{
-    background:#161B22;
-    border:2px dashed #30363D;
-    border-radius:20px;
-    padding:15px;
+.sidebar-title{
+    font-size: 24px;
+    font-weight: bold;
+    color: #1f77ff;
+    margin-bottom: 5px;
 }
 
-/* =========================
-BUTTON
-========================= */
+.sidebar-sub{
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.info-box{
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
 .stButton > button{
-    background:linear-gradient(135deg,#238636,#2EA043);
-    color:white;
-    border:none;
-    border-radius:14px;
-    padding:14px;
-    font-size:16px;
-    font-weight:600;
-    width:100%;
+    width: 100%;
+    background-color: #1f77ff;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    padding: 12px;
+    font-weight: bold;
 }
 
 .stButton > button:hover{
-    opacity:0.9;
-}
-
-/* =========================
-RADIO MENU
-========================= */
-.stRadio > div{
-    gap:12px;
-}
-
-.stRadio label{
-    background:#161B22;
-    border:1px solid #30363D;
-    padding:14px 18px;
-    border-radius:14px;
-    width:100%;
-    transition:0.2s;
-}
-
-.stRadio label:hover{
-    border:1px solid #58A6FF;
-    background:#1B222C;
-}
-
-/* =========================
-SELECTBOX
-========================= */
-[data-baseweb="select"]{
-    background:#161B22;
-    border-radius:12px;
-}
-
-/* =========================
-WARNING
-========================= */
-[data-testid="stAlert"]{
-    border-radius:14px;
-}
-
-/* =========================
-HIDE STREAMLIT
-========================= */
-#MainMenu,
-footer,
-header{
-    visibility:hidden;
+    background-color: #005fe0;
+    color: white;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# LOAD MODEL
+# MODEL
 # =========================================================
 @st.cache_resource
 def load_model():
@@ -247,10 +134,7 @@ def load_model():
         nn.Linear(256, len(CLASSES))
     )
 
-    state_dict = torch.load(
-        MODEL_PATH,
-        map_location=device
-    )
+    state_dict = torch.load(MODEL_PATH, map_location=device)
 
     model.load_state_dict(state_dict)
 
@@ -262,7 +146,7 @@ def load_model():
 # TRANSFORM
 # =========================================================
 transform = transforms.Compose([
-    transforms.Resize((IMG_SIZE, IMG_SIZE)),
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(
         [0.485, 0.456, 0.406],
@@ -275,88 +159,39 @@ transform = transforms.Compose([
 # =========================================================
 def predict(image, model):
 
-    image = image.convert("RGB")
+    if image.mode != "RGB":
+        image = image.convert("RGB")
 
     tensor = transform(image).unsqueeze(0).to(device)
 
     with torch.no_grad():
-
-        output = model(tensor)
-
-        probs = torch.softmax(output, dim=1)[0].cpu().numpy()
+        outputs = model(tensor)
+        probs = torch.softmax(outputs, dim=1)
+        probs = probs.cpu().numpy()[0]
 
     pred_idx = np.argmax(probs)
 
-    return CLASSES[pred_idx], probs
+    return CLASSES[pred_idx], probs[pred_idx]
 
 # =========================================================
 # SIDEBAR
 # =========================================================
 with st.sidebar:
 
-    st.markdown("""
-    <div style="
-        text-align:center;
-        padding-top:10px;
-        padding-bottom:20px;
-    ">
-
-    <div style="
-        font-size:40px;
-    ">
-    🔬
-    </div>
-
-    <div style="
-        font-size:28px;
-        font-weight:700;
-        color:#58A6FF;
-    ">
-    DermaScan
-    </div>
-
-    <div style="
-        color:#8B949E;
-        font-size:14px;
-    ">
-    Skin Disease Detection
-    </div>
-
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("### MENU")
-
-    menu = st.radio(
-        "",
-        [
-            "🩺 Deteksi Penyakit Kulit",
-            "📚 Informasi Penyakit"
-        ]
+    st.markdown(
+        '<div class="sidebar-title">🔬 DermaScan</div>',
+        unsafe_allow_html=True
     )
 
-    st.markdown("---")
+    st.markdown(
+        '<div class="sidebar-sub">Skin Disease Detection</div>',
+        unsafe_allow_html=True
+    )
 
-    st.markdown("""
-    <div style="
-        color:#8B949E;
-        font-size:14px;
-        line-height:1.8;
-    ">
-
-    <b style="color:white;">
-    Kelas yang Didukung
-    </b>
-
-    <br><br>
-
-    • Eczema<br>
-    • Herpes Zoster<br>
-    • Normal<br>
-    • Ringworm
-
-    </div>
-    """, unsafe_allow_html=True)
+    menu = st.radio(
+        "MENU",
+        ["🩺 Deteksi Penyakit Kulit", "📚 Informasi Penyakit"]
+    )
 
 # =========================================================
 # MENU DETEKSI
@@ -369,141 +204,74 @@ if menu == "🩺 Deteksi Penyakit Kulit":
     )
 
     st.markdown(
-        '<div class="sub-title">Upload gambar kulit untuk mendapatkan hasil klasifikasi AI</div>',
+        '<div class="sub-text">Upload gambar kulit untuk mendapatkan hasil prediksi AI</div>',
         unsafe_allow_html=True
     )
 
-    col1, col2 = st.columns([1,1])
+    uploaded_file = st.file_uploader(
+        "Upload gambar",
+        type=["jpg", "jpeg", "png"]
+    )
 
-    # =====================================================
-    # LEFT
-    # =====================================================
-    with col1:
+    if uploaded_file is not None:
 
-        uploaded = st.file_uploader(
-            "Upload gambar",
-            type=["jpg", "jpeg", "png"]
-        )
+        image = Image.open(uploaded_file)
 
-        if uploaded:
+        col1, col2 = st.columns([1,1])
 
-            image = Image.open(uploaded)
-
+        with col1:
             st.image(
                 image,
                 caption="Gambar yang diupload",
                 use_container_width=True
             )
 
-            analyze = st.button(
-                "🔍 Analisis Sekarang",
-                use_container_width=True
-            )
+        with col2:
 
-        else:
+            if st.button("Deteksi Sekarang"):
 
-            analyze = False
+                try:
+                    model = load_model()
 
-            st.markdown("""
-            <div class="custom-card" style="text-align:center;">
+                    prediction, confidence = predict(image, model)
 
-            <div style="font-size:70px;">
-            🖼️
-            </div>
+                    color_map = {
+                        "Eczema": "#3498db",
+                        "Herpes Zoster": "#e74c3c",
+                        "Normal": "#27ae60",
+                        "Ringworm": "#f39c12"
+                    }
 
-            <h3>Upload Gambar Kulit</h3>
+                    color = color_map[prediction]
 
-            <p style="color:#8B949E;">
-            JPG, JPEG, PNG
-            </p>
+                    st.markdown(f"""
+                    <div class="result-box">
 
-            </div>
-            """, unsafe_allow_html=True)
+                        <div style="font-size:14px; color:gray;">
+                        Hasil Klasifikasi
+                        </div>
 
-    # =====================================================
-    # RIGHT
-    # =====================================================
-    with col2:
+                        <div class="result-title" style="color:{color};">
+                        {prediction}
+                        </div>
 
-        st.markdown("## 📊 Hasil Analisis")
+                        <div style="margin-top:20px; font-size:14px; color:gray;">
+                        Confidence Score
+                        </div>
 
-        if uploaded and analyze:
+                        <div class="confidence">
+                        {confidence*100:.2f}%
+                        </div>
 
-            try:
-
-                model = load_model()
-
-                pred_class, probs = predict(image, model)
-
-                info = DISEASE_INFO[pred_class]
-
-                confidence = probs.max() * 100
-
-                color = info["color"]
-
-                st.markdown(f"""
-                <div class="custom-card">
-
-                    <div style="
-                        font-size:14px;
-                        color:#8B949E;
-                        margin-bottom:10px;
-                    ">
-                        HASIL KLASIFIKASI
                     </div>
+                    """, unsafe_allow_html=True)
 
-                    <div class="result-title"
-                        style="color:{color};">
-                        {info['icon']} {pred_class}
-                    </div>
+                    st.warning(
+                        "Hasil ini hanya untuk screening awal dan bukan diagnosis medis."
+                    )
 
-                    <div style="
-                        margin-top:20px;
-                        font-size:14px;
-                        color:#8B949E;
-                    ">
-                        CONFIDENCE SCORE
-                    </div>
-
-                    <div class="result-score"
-                        style="color:{color};">
-                        {confidence:.2f}%
-                    </div>
-
-                </div>
-                """, unsafe_allow_html=True)
-
-                st.warning(
-                    "⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis."
-                )
-
-            except Exception as e:
-
-                st.error(f"Terjadi kesalahan: {e}")
-
-        else:
-
-            st.markdown("""
-            <div class="custom-card"
-                style="
-                    text-align:center;
-                    padding:60px;
-                ">
-
-                <div style="font-size:70px;">
-                🔬
-                </div>
-
-                <h3>
-                Belum Ada Analisis
-                </h3>
-
-                <p style="color:#8B949E;">
-                Upload gambar lalu klik tombol analisis
-                </p>
-
-            </div>
-            """, unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Terjadi kesalahan: {e}")
 
 # =========================================================
 # MENU INFORMASI
@@ -511,38 +279,44 @@ if menu == "🩺 Deteksi Penyakit Kulit":
 elif menu == "📚 Informasi Penyakit":
 
     st.markdown(
-        '<div class="main-title">Informasi Penyakit</div>',
+        '<div class="main-title">Informasi Penyakit Kulit</div>',
         unsafe_allow_html=True
     )
 
-    st.markdown(
-        '<div class="sub-title">Pilih penyakit untuk melihat informasi</div>',
-        unsafe_allow_html=True
-    )
-
-    selected = st.selectbox(
-        "Pilih Penyakit",
+    pilihan = st.selectbox(
+        "Pilih penyakit",
         CLASSES
     )
 
-    info = DISEASE_INFO[selected]
+    info = {
+        "Eczema": """
+        Eczema adalah kondisi kulit yang menyebabkan kulit merah,
+        gatal, kering, dan iritasi.
+        """,
+
+        "Herpes Zoster": """
+        Herpes Zoster adalah infeksi virus yang menyebabkan ruam
+        dan rasa nyeri pada kulit.
+        """,
+
+        "Normal": """
+        Kulit berada dalam kondisi normal dan tidak ditemukan
+        indikasi penyakit kulit.
+        """,
+
+        "Ringworm": """
+        Ringworm adalah infeksi jamur pada kulit yang biasanya
+        berbentuk lingkaran dan terasa gatal.
+        """
+    }
 
     st.markdown(f"""
-    <div class="custom-card">
+    <div class="info-box">
 
-        <div class="result-title"
-            style="color:{info['color']};">
+        <h3>{pilihan}</h3>
 
-            {info['icon']} {selected}
-
-        </div>
-
-        <p style="
-            color:#C9D1D9;
-            font-size:17px;
-            line-height:1.8;
-        ">
-            {info['description']}
+        <p style="line-height:1.8;">
+        {info[pilihan]}
         </p>
 
     </div>
