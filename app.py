@@ -40,92 +40,105 @@ if not os.path.exists(MODEL_PATH):
 st.markdown("""
 <style>
 
-.stApp {
-    background-color: #f5f7fa;
-}
-
-.main-title{
-    font-size: 38px;
-    font-weight: bold;
-    color: #1f2937;
-    margin-bottom: 5px;
-}
-
-.sub-text{
-    font-size: 16px;
-    color: #6b7280;
-    margin-bottom: 25px;
-}
-
-.sidebar-title{
-    font-size: 24px;
-    font-weight: bold;
-    color: #2563eb;
-    margin-bottom: 5px;
-}
-
-.sidebar-sub{
-    color: #6b7280;
-    font-size: 14px;
-    margin-bottom: 20px;
-}
-
-[data-testid="stSidebar"]{
-    background-color: white;
-}
-
-.result-card{
-    background-color: white;
-    padding: 30px;
-    border-radius: 18px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    margin-top: 20px;
-}
-
-.info-box{
-    background-color: white;
-    padding: 25px;
-    border-radius: 18px;
-    border: 1px solid #e5e7eb;
-    line-height: 1.8;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.disclaimer{
-    margin-top: 20px;
-    background-color: #fff4e5;
-    border: 1px solid #fcd34d;
-    color: #b45309;
-    padding: 15px;
-    border-radius: 12px;
-    font-size: 14px;
+.stApp{
+    background-color:#f5f7fa;
 }
 
 .block-container{
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top:2rem;
+    padding-bottom:2rem;
 }
 
 [data-testid="stSidebar"]{
-    background-color: white;
-    border-right: 1px solid #e5e7eb;
+    background-color:white;
+    border-right:1px solid #e5e7eb;
 }
 
 section[data-testid="stSidebar"]{
-    width: 280px !important;
+    width:280px !important;
+}
+
+.sidebar-title{
+    font-size:28px;
+    font-weight:700;
+    color:#2563eb;
+    margin-bottom:5px;
+}
+
+.sidebar-sub{
+    font-size:14px;
+    color:#6b7280;
+    margin-bottom:25px;
+}
+
+.main-title{
+    font-size:38px;
+    font-weight:700;
+    color:#111827;
+    margin-bottom:5px;
+}
+
+.sub-text{
+    color:#6b7280;
+    font-size:16px;
+    margin-bottom:25px;
 }
 
 .stFileUploader{
-    background: white;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid #e5e7eb;
+    background:white;
+    padding:15px;
+    border-radius:16px;
+    border:1px solid #e5e7eb;
+}
+
+.result-box{
+    background:white;
+    padding:35px;
+    border-radius:20px;
+    border:1px solid #e5e7eb;
+    box-shadow:0 4px 12px rgba(0,0,0,0.05);
+    margin-top:20px;
+}
+
+.result-label{
+    font-size:14px;
+    color:#6b7280;
+    margin-bottom:10px;
+}
+
+.result-prediction{
+    font-size:42px;
+    font-weight:700;
+    margin-bottom:30px;
+}
+
+.result-confidence{
+    font-size:32px;
+    font-weight:700;
+    color:#2563eb;
+}
+
+.disclaimer{
+    margin-top:18px;
+    background:#fff7ed;
+    border:1px solid #fdba74;
+    color:#c2410c;
+    padding:14px;
+    border-radius:14px;
+    font-size:14px;
+}
+
+.info-box{
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    border:1px solid #e5e7eb;
+    box-shadow:0 4px 12px rgba(0,0,0,0.05);
+    line-height:1.8;
 }
 
 </style>
 """, unsafe_allow_html=True)
-
 
 # =========================================================
 # LOAD MODEL
@@ -191,7 +204,7 @@ def predict(image, model):
 with st.sidebar:
 
     st.markdown(
-        '<div class="sidebar-title">Skin Disease Detection</div>',
+        '<div class="sidebar-title">🔬 Skin Disease Detection</div>',
         unsafe_allow_html=True
     )
 
@@ -211,19 +224,17 @@ with st.sidebar:
 # =========================================================
 # MENU DETEKSI
 # =========================================================
-if menu == "🩺 Deteksi Penyakit Kulit":
+if menu == "Deteksi Penyakit Kulit":
 
-    st.markdown("""
-    <div class="main-title">
-        Deteksi Penyakit Kulit
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="main-title">Deteksi Penyakit Kulit</div>',
+        unsafe_allow_html=True
+    )
 
-    st.markdown("""
-    <div class="sub-text">
-        Upload gambar kulit untuk mendapatkan hasil prediksi AI
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="sub-text">Upload gambar kulit untuk mendapatkan hasil prediksi AI</div>',
+        unsafe_allow_html=True
+    )
 
     uploaded_file = st.file_uploader(
         "Upload gambar",
@@ -234,8 +245,8 @@ if menu == "🩺 Deteksi Penyakit Kulit":
 
         image = Image.open(uploaded_file)
 
-        # langsung prediksi otomatis
         model = load_model()
+
         prediction, confidence = predict(image, model)
 
         color_map = {
@@ -247,10 +258,9 @@ if menu == "🩺 Deteksi Penyakit Kulit":
 
         color = color_map[prediction]
 
-        # layout lebih rapih
-        left_col, right_col = st.columns([1.1, 0.9], gap="large")
+        col1, col2 = st.columns([1.1, 0.9], gap="large")
 
-        with left_col:
+        with col1:
 
             st.image(
                 image,
@@ -258,74 +268,43 @@ if menu == "🩺 Deteksi Penyakit Kulit":
                 use_container_width=True
             )
 
-        with right_col:
+        with col2:
 
-            st.markdown(f"""
-            <div style="
-                background:white;
-                padding:35px;
-                border-radius:20px;
-                border:1px solid #e5e7eb;
-                box-shadow:0 4px 12px rgba(0,0,0,0.06);
-                margin-top:20px;
-            ">
+            st.markdown(
+                f"""
+                <div class="result-box">
 
-                <div style="
-                    font-size:15px;
-                    color:#6b7280;
-                    margin-bottom:12px;
-                ">
-                    Hasil Klasifikasi
+                    <div class="result-label">
+                        Hasil Klasifikasi
+                    </div>
+
+                    <div class="result-prediction" style="color:{color};">
+                        {prediction}
+                    </div>
+
+                    <div class="result-label">
+                        Confidence Score
+                    </div>
+
+                    <div class="result-confidence">
+                        {confidence*100:.2f}%
+                    </div>
+
                 </div>
-
-                <div style="
-                    font-size:42px;
-                    font-weight:700;
-                    color:{color};
-                    margin-bottom:35px;
-                    line-height:1.1;
-                ">
-                    {prediction}
-                </div>
-
-                <div style="
-                    font-size:15px;
-                    color:#6b7280;
-                    margin-bottom:12px;
-                ">
-                    Confidence Score
-                </div>
-
-                <div style="
-                    font-size:34px;
-                    font-weight:700;
-                    color:#2563eb;
-                ">
-                    {confidence*100:.2f}%
-                </div>
-
-            </div>
-            """, unsafe_allow_html=True)
+                """,
+                unsafe_allow_html=True
+            )
 
             st.markdown("""
-            <div style="
-                margin-top:18px;
-                background:#fff7ed;
-                border:1px solid #fdba74;
-                color:#c2410c;
-                padding:14px;
-                border-radius:14px;
-                font-size:14px;
-                line-height:1.5;
-            ">
-            ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
+            <div class="disclaimer">
+                ⚠️ Hasil ini hanya untuk screening awal dan bukan diagnosis medis.
             </div>
             """, unsafe_allow_html=True)
 
 # =========================================================
 # MENU INFORMASI
 # =========================================================
-elif menu == "📚 Informasi Penyakit":
+elif menu == "Informasi Penyakit":
 
     st.markdown(
         '<div class="main-title">Informasi Penyakit Kulit</div>',
@@ -366,11 +345,11 @@ elif menu == "📚 Informasi Penyakit":
         f"""
         <div class="info-box">
 
-        <h2>{pilihan}</h2>
+            <h2>{pilihan}</h2>
 
-        <p>
-        {info[pilihan]}
-        </p>
+            <p>
+                {info[pilihan]}
+            </p>
 
         </div>
         """,
