@@ -420,19 +420,64 @@ elif "Informasi" in menu:
 
     st.markdown("## 📖 Informasi Penyakit Kulit")
     st.markdown(
-        "<p style='color:#6B7280;font-size:0.95rem;margin-top:-0.5rem;margin-bottom:1.75rem'>"
-        "Penjelasan singkat setiap kondisi kulit yang dapat dikenali oleh model.</p>",
+        "<p style='color:#6B7280;font-size:0.95rem;margin-top:-0.5rem;margin-bottom:1.5rem'>"
+        "Pilih kondisi kulit di bawah untuk melihat penjelasan lengkapnya.</p>",
         unsafe_allow_html=True
     )
 
-    col_a, col_b = st.columns(2, gap="medium")
-    cols = [col_a, col_b]
+    # Tombol pilih penyakit
+    btn_cols = st.columns(4, gap="small")
+    selected = st.session_state.get("selected_info", None)
 
     for idx, (cls, info) in enumerate(DISEASE_INFO.items()):
+        with btn_cols[idx]:
+            is_active = selected == cls
+            active_style = f"background:{info['color']};color:white;border-color:{info['color']};"
+            inactive_style = f"background:{info['bg']};color:{info['color']};border-color:{info['border']};"
+            st.markdown(f"""
+                <div style="
+                    {active_style if is_active else inactive_style}
+                    border:1.5px solid;
+                    border-radius:12px;
+                    padding:0.75rem 0.5rem;
+                    text-align:center;
+                    cursor:pointer;
+                    margin-bottom:0.25rem;
+                ">
+                    <div style="font-size:1.6rem">{info['icon']}</div>
+                    <div style="font-size:0.82rem;font-weight:600;margin-top:0.25rem">{cls}</div>
+                </div>
+            """, unsafe_allow_html=True)
+            if st.button(f"Pilih {cls}", key=f"btn_{cls}", use_container_width=True):
+                st.session_state["selected_info"] = cls
+                st.rerun()
+
+    st.markdown("<div style='margin-bottom:1rem'></div>", unsafe_allow_html=True)
+
+    # Tampilkan detail jika sudah dipilih
+    selected = st.session_state.get("selected_info", None)
+
+    if selected is None:
+        st.markdown("""
+            <div style="
+                border: 2px dashed #CBD5E1;
+                border-radius: 16px;
+                background: white;
+                padding: 3rem 2rem;
+                text-align: center;
+            ">
+                <div style="font-size:2.5rem;margin-bottom:0.75rem">👆</div>
+                <div style="font-size:1rem;font-weight:600;color:#374151;margin-bottom:0.3rem">Pilih salah satu kondisi di atas</div>
+                <div style="font-size:0.83rem;color:#9CA3AF">Informasi lengkap akan ditampilkan di sini</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    else:
+        info = DISEASE_INFO[selected]
 
         gejala_html = "".join([
-            f"""<div style="display:flex;gap:0.5rem;align-items:flex-start;padding:0.25rem 0;font-size:0.85rem;color:#374151">
-                    <div style="width:7px;height:7px;border-radius:50%;background:{info['color']};margin-top:0.38rem;flex-shrink:0"></div>
+            f"""<div style="display:flex;gap:0.5rem;align-items:flex-start;padding:0.3rem 0;font-size:0.87rem;color:#374151">
+                    <div style="width:7px;height:7px;border-radius:50%;background:{info['color']};margin-top:0.42rem;flex-shrink:0"></div>
                     <span>{g}</span>
                 </div>"""
             for g in info["gejala"]
@@ -441,37 +486,50 @@ elif "Informasi" in menu:
         jurnal_html = ""
         if info.get("jurnal"):
             jurnal_html = f"""
-                <div style="margin-top:1rem">
+                <div style="margin-top:1.25rem">
                     <a href="{info['jurnal']}" target="_blank"
-                       style="font-size:0.82rem;color:{info['color']};font-weight:600;text-decoration:none">
+                       style="font-size:0.83rem;color:{info['color']};font-weight:600;text-decoration:none">
                         📄 Lihat Jurnal Referensi →
                     </a>
                 </div>"""
 
-        with cols[idx % 2]:
+        _, center_info, _ = st.columns([1, 3, 1])
+        with center_info:
             st.markdown(f"""
                 <div style="
                     background:{info['bg']};
                     border:1.5px solid {info['border']};
                     border-radius:16px;
-                    padding:1.5rem;
+                    padding:1.75rem;
                     margin-bottom:1.25rem;
                 ">
-                    <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.9rem;padding-bottom:0.75rem;border-bottom:1px solid {info['border']}">
-                        <span style="font-size:1.6rem">{info['icon']}</span>
-                        <span style="font-size:1.15rem;font-weight:700;color:{info['color']};letter-spacing:-0.01em">{cls}</span>
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;
+                                padding-bottom:1rem;border-bottom:1.5px solid {info['border']}">
+                        <span style="font-size:2rem">{info['icon']}</span>
+                        <span style="font-size:1.4rem;font-weight:700;color:{info['color']};
+                                     letter-spacing:-0.02em">{selected}</span>
                     </div>
-                    <div style="font-size:0.87rem;color:#4B5563;line-height:1.7;margin-bottom:1rem">
+
+                    <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.09em;
+                                text-transform:uppercase;color:#8896AB;margin-bottom:0.5rem">
+                        Deskripsi
+                    </div>
+                    <div style="font-size:0.88rem;color:#374151;line-height:1.75;margin-bottom:1.25rem">
                         {info['deskripsi']}
                     </div>
-                    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8896AB;margin-bottom:0.4rem">
+
+                    <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.09em;
+                                text-transform:uppercase;color:#8896AB;margin-bottom:0.5rem">
                         Gejala Umum
                     </div>
                     {gejala_html}
-                    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8896AB;margin-top:0.9rem;margin-bottom:0.4rem">
+
+                    <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.09em;
+                                text-transform:uppercase;color:#8896AB;margin-top:1.1rem;margin-bottom:0.5rem">
                         Penanganan
                     </div>
-                    <div style="background:rgba(0,0,0,0.03);border-radius:8px;padding:0.7rem 0.9rem;font-size:0.85rem;color:#4B5563;line-height:1.65">
+                    <div style="background:rgba(0,0,0,0.04);border-radius:10px;padding:0.85rem 1rem;
+                                font-size:0.87rem;color:#4B5563;line-height:1.7">
                         {info['penanganan']}
                     </div>
                     {jurnal_html}
