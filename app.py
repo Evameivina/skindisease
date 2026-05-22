@@ -32,11 +32,10 @@ DISEASE_INFO = {
         "border"    : "#F5C6C6",
         "icon"      : "🔴",
         "deskripsi" : (
-            "Atopic dermatitis (AD), atau atopic eczema, adalah penyakit kulit inflamasi kronis yang bersifat heterogen secara fenotipik. "
-            "Penyakit ini umumnya muncul akibat pemicu lingkungan pada individu yang memiliki predisposisi genetik. "
-            "AD ditandai dengan pruritus — terutama memburuk pada malam hari — kulit kering dan menebal, serta papul yang terasa sangat gatal dan dapat mengeluarkan cairan jika digaruk. "
-            "Xerosis (kekeringan kulit) dan iktiosis juga merupakan istilah yang sering dikaitkan dengan AD. "
-            "Prevalensi AD sekitar 20% pada anak-anak dan 1–3% pada dewasa, dan menempati peringkat pertama di antara semua penyakit kulit berdasarkan disability-adjusted life-years (DALYs) global."
+            "Atopic dermatitis (AD) adalah penyakit kulit inflamasi kronis yang ditandai dengan pruritus intens, "
+            "kulit kering (xerosis), dan papul kemerahan yang bersifat residif. "
+            "Prevalensinya sekitar 20% pada anak-anak dan 1–3% pada dewasa, "
+            "dan menempati peringkat pertama di antara semua penyakit kulit berdasarkan disability-adjusted life-years (DALYs) global."
         ),
         "gejala"    : [
             "Pruritus (gatal intens), terutama memburuk pada malam hari",
@@ -54,10 +53,9 @@ DISEASE_INFO = {
         "border"    : "#F5D6B0",
         "icon"      : "🟡",
         "deskripsi" : (
-            "Herpes zoster (HZ) merupakan reaktivasi virus Varicella-Zoster (VZV) — agen kausal yang sama dengan cacar air (varisela). "
-            "VZV bersifat laten di jaringan saraf setelah infeksi primer, dan reaktivasinya umumnya dipicu oleh penurunan imunitas seluler akibat usia lanjut, stres, infeksi lain, atau imunosupresi. "
-            "Gejala klinis muncul dalam tiga tahap: fase pre-eruptif (nyeri atau rasa terbakar dalam dermaton yang terkena, minimal 2 hari sebelum ruam), fase eruptif akut (vesikel yang menyakitkan, berlangsung 2–4 minggu), dan fase kronis yang ditandai nyeri persisten lebih dari 4 minggu (postherpetic neuralgia/PHN). "
-            "Insiden HZ meningkat seiring usia, berkisar 3,9–11,8 per 1.000 orang per tahun pada usia di atas 65 tahun."
+            "Herpes zoster adalah reaktivasi virus Varicella-Zoster (VZV) yang sebelumnya bersifat laten di ganglia sensoris "
+            "setelah infeksi cacar air. Reaktivasi umumnya dipicu oleh penurunan imunitas akibat usia lanjut, stres, atau imunosupresi, "
+            "dan menimbulkan ruam vesikel yang nyeri mengikuti satu jalur dermaton."
         ),
         "gejala"    : [
             "Fase awal: nyeri, rasa terbakar, atau kesemutan pada satu sisi tubuh",
@@ -74,10 +72,10 @@ DISEASE_INFO = {
         "border"    : "#A8DFC7",
         "icon"      : "🟢",
         "deskripsi" : (
-            "Kulit merupakan organ terbesar tubuh manusia yang tersusun dari tiga lapisan utama: epidermis, dermis, dan hipodermis. "
-            "Epidermis umumnya terdiri dari sekitar 40–50 lapisan sel epitel skuamosa yang terutama berasal dari keratinosit, dan terbagi menjadi empat lapisan: stratum basale, stratum spinosum, stratum granulosum, dan stratum corneum. "
-            "Lapisan dermis sebagian besar tersusun dari jaringan ikat yang mengandung serat kolagen dan elastin, sementara hipodermis merupakan area yang terdiri dari jaringan adiposa. "
-            "Pada kondisi normal, kulit berfungsi optimal sebagai pelindung pertama tubuh terhadap patogen, radiasi UV, bahan kimia, dan cedera mekanis, sekaligus berperan dalam regulasi suhu tubuh."
+            "Kulit normal merupakan kondisi kulit sehat dengan fungsi barrier yang optimal. "
+            "Kulit tersusun dari tiga lapisan utama — epidermis, dermis, dan hipodermis — "
+            "yang bersama-sama melindungi tubuh dari patogen, radiasi UV, bahan kimia, dan cedera mekanis, "
+            "sekaligus berperan dalam regulasi suhu tubuh."
         ),
         "gejala"    : [
             "Tidak ditemukan tanda-tanda kelainan atau penyakit kulit",
@@ -94,11 +92,10 @@ DISEASE_INFO = {
         "border"    : "#C9BFF5",
         "icon"      : "🟠",
         "deskripsi" : (
-            "Tinea corporis, yang dikenal sebagai ringworm, adalah infeksi jamur superfisial pada kulit yang disebabkan oleh dermatofita. "
-            "Trichophyton rubrum merupakan spesies dermatofita paling umum sebagai penyebabnya. "
-            "Infeksi dapat terjadi melalui kontak dengan orang atau hewan yang terinfeksi, maupun melalui fomites seperti sisir, pakaian, handuk, dan alas lantai. "
-            "Tinea corporis umumnya tampil sebagai papul dan plak anular (berbentuk cincin) berbatas jelas dengan hipopigmentasi sentral — tampilan inilah yang melahirkan nama 'ringworm'. "
-            "Tinea infection merupakan kondisi kulit paling prevalen di dunia dan berada di peringkat keempat tertinggi dalam insiden penyakit global, dengan estimasi risiko seumur hidup sebesar 10–20%."
+            "Tinea corporis (ringworm) adalah infeksi jamur superfisial pada kulit yang disebabkan oleh dermatofita, "
+            "paling umum Trichophyton rubrum. Penyakit ini menampilkan lesi anular (berbentuk cincin) berbatas jelas "
+            "dengan hipopigmentasi sentral, dan merupakan kondisi kulit paling prevalen di dunia "
+            "dengan estimasi risiko seumur hidup sebesar 10–20%."
         ),
         "gejala"    : [
             "Papul dan plak anular (cincin) berbatas jelas dengan tepi lebih menonjol",
