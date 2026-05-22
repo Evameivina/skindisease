@@ -427,28 +427,10 @@ elif "Informasi" in menu:
 
     # Tombol pilih penyakit
     btn_cols = st.columns(4, gap="small")
-    selected = st.session_state.get("selected_info", None)
 
     for idx, (cls, info) in enumerate(DISEASE_INFO.items()):
         with btn_cols[idx]:
-            is_active = selected == cls
-            active_style = f"background:{info['color']};color:white;border-color:{info['color']};"
-            inactive_style = f"background:{info['bg']};color:{info['color']};border-color:{info['border']};"
-            st.markdown(f"""
-                <div style="
-                    {active_style if is_active else inactive_style}
-                    border:1.5px solid;
-                    border-radius:12px;
-                    padding:0.75rem 0.5rem;
-                    text-align:center;
-                    cursor:pointer;
-                    margin-bottom:0.25rem;
-                ">
-                    <div style="font-size:1.6rem">{info['icon']}</div>
-                    <div style="font-size:0.82rem;font-weight:600;margin-top:0.25rem">{cls}</div>
-                </div>
-            """, unsafe_allow_html=True)
-            if st.button(f"Pilih {cls}", key=f"btn_{cls}", use_container_width=True):
+            if st.button(cls, key=f"btn_{cls}", use_container_width=True):
                 st.session_state["selected_info"] = cls
                 st.rerun()
 
@@ -476,10 +458,7 @@ elif "Informasi" in menu:
         info = DISEASE_INFO[selected]
 
         gejala_html = "".join([
-            f"""<div style="display:flex;gap:0.5rem;align-items:flex-start;padding:0.3rem 0;font-size:0.87rem;color:#374151">
-                    <div style="width:7px;height:7px;border-radius:50%;background:{info['color']};margin-top:0.42rem;flex-shrink:0"></div>
-                    <span>{g}</span>
-                </div>"""
+            f"""<div style="padding:0.25rem 0;font-size:0.87rem;color:#374151">— {g}</div>"""
             for g in info["gejala"]
         ])
 
@@ -505,7 +484,6 @@ elif "Informasi" in menu:
                 ">
                     <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;
                                 padding-bottom:1rem;border-bottom:1.5px solid {info['border']}">
-                        <span style="font-size:2rem">{info['icon']}</span>
                         <span style="font-size:1.4rem;font-weight:700;color:{info['color']};
                                      letter-spacing:-0.02em">{selected}</span>
                     </div>
