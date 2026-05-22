@@ -263,22 +263,12 @@ if "Deteksi" in menu:
             st.metric(label="Confidence Score", value=f"{conf:.2f}%")
             st.divider()
 
-            st.markdown("**Distribusi Confidence**")
-            for i, cls in enumerate(CLASSES):
-                cls_conf = float(probs[i]) * 100
-                st.write(f"{cls}: {cls_conf:.1f}%")
-                st.progress(cls_conf / 100)
-
-            st.divider()
             st.markdown("**Tentang Kondisi Ini**")
             st.write(info["deskripsi"])
 
             st.markdown("**Gejala Umum**")
             for g in info["gejala"]:
                 st.write(f"— {g}")
-
-            st.markdown("**Penanganan**")
-            st.info(info["penanganan"])
 
             if info.get("jurnal"):
                 st.markdown(f"[Lihat Jurnal Referensi]({info['jurnal']})")
@@ -324,9 +314,6 @@ elif "Informasi" in menu:
             st.markdown("**Gejala Umum**")
             for g in info["gejala"]:
                 st.write(f"— {g}")
-
-            st.markdown("**Penanganan**")
-            st.info(info["penanganan"])
 
             if info.get("jurnal"):
                 st.markdown(f"[Lihat Jurnal Referensi]({info['jurnal']})")
