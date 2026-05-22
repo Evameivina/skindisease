@@ -7,9 +7,7 @@ import numpy as np
 import gdown
 import os
 
-# =========================================================
 # PAGE CONFIG
-# =========================================================
 st.set_page_config(
     page_title="SkinScan — Deteksi Penyakit Kulit",
     page_icon="🔬",
@@ -17,9 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# =========================================================
 # CONFIG
-# =========================================================
 CLASSES    = ["Eczema", "Herpes Zoster", "Normal", "Ringworm"]
 MODEL_URL  = "https://drive.google.com/uc?id=1s2BhRSSuUTRpuANjXkzTYSEAi_wKTuLR"
 MODEL_PATH = "convnext_skin_state_dict.pth"
@@ -68,16 +64,12 @@ DISEASE_INFO = {
     },
 }
 
-# =========================================================
 # DOWNLOAD MODEL
-# =========================================================
 if not os.path.exists(MODEL_PATH):
     with st.spinner("Mengunduh model, harap tunggu..."):
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
-# =========================================================
 # CSS
-# =========================================================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -143,9 +135,7 @@ h3 { font-weight: 600 !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================================
 # LOAD MODEL
-# =========================================================
 @st.cache_resource
 def load_model():
     m = models.convnext_tiny(weights=None)
@@ -178,9 +168,7 @@ def predict(image, model):
         probs = torch.softmax(out, dim=1).cpu().numpy()[0]
     return CLASSES[np.argmax(probs)], probs
 
-# =========================================================
 # SIDEBAR
-# =========================================================
 with st.sidebar:
     st.markdown("""
         <div style="text-align:center;padding:1.75rem 0 1.5rem;">
@@ -202,14 +190,11 @@ with st.sidebar:
     st.markdown("""
         <div style="font-size:0.72rem;color:#555870;line-height:1.7;padding:0 0.25rem">
             <b style="color:#8896AB">Disclaimer</b><br>
-            Aplikasi ini hanya untuk tujuan edukatif. Bukan pengganti diagnosis medis profesional.
+            Aplikasi ini bukan pengganti diagnosis medis profesional.
         </div>
     """, unsafe_allow_html=True)
 
-
-# =========================================================
 # MENU: DETEKSI
-# =========================================================
 if "Deteksi" in menu:
 
     st.markdown("## Deteksi Penyakit Kulit")
@@ -223,7 +208,7 @@ if "Deteksi" in menu:
             st.write("- Herpes Zoster — cacar api / shingles")
             st.write("- Normal — kulit sehat")
             st.write("- Ringworm — kurap / tinea corporis")
-            st.warning("Gambar di luar 4 kategori ini tetap akan diprediksi ke salah satu kelas, namun hasilnya tidak dapat diandalkan.")
+            st.warning("Gambar di luar 4 kategori ini tetap akan diprediksi ke salah satu kelas, namun hasilnya tidak valid .")
         with col_t2:
             st.markdown("**Tutorial Cara Pakai**")
             st.write("1. Siapkan foto kulit yang jelas dan cukup cahaya")
@@ -276,9 +261,7 @@ if "Deteksi" in menu:
             if label != "Normal":
                 st.warning("Hasil ini **bukan diagnosis medis**. Segera konsultasikan ke dokter kulit untuk pemeriksaan lebih lanjut.")
 
-# =========================================================
 # MENU: INFORMASI
-# =========================================================
 elif "Informasi" in menu:
 
     st.markdown("## Informasi Penyakit Kulit")
@@ -319,4 +302,4 @@ elif "Informasi" in menu:
                 st.markdown(f"[Lihat Jurnal Referensi]({info['jurnal']})")
 
     st.divider()
-    st.warning("Informasi di atas bersifat **edukatif**. Selalu konsultasikan kondisi kulit Anda kepada tenaga medis profesional.")
+    st.warning("Informasi di atas bersifat **edukatif**  Bukan pengganti diagnosis medis profesional. Selalu konsultasikan kondisi kulit Anda kepada tenaga medis profesional.")
