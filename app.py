@@ -34,7 +34,7 @@ DISEASE_INFO = {
         "deskripsi" : "Kondisi kulit kronis yang menyebabkan peradangan, kemerahan, dan rasa gatal. Sering kambuh dan dipicu oleh alergen, stres, atau perubahan cuaca.",
         "gejala"    : ["Kulit kering dan gatal", "Kemerahan dan peradangan", "Kulit bersisik atau mengelupas", "Bentol-bentol kecil berisi cairan"],
         "penanganan": "Gunakan pelembap secara rutin, hindari pemicu alergi, dan konsultasikan ke dokter untuk mendapatkan krim kortikosteroid atau antihistamin jika diperlukan.",
-        "jurnal"    : None,
+        "jurnal"    : "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9688004/",
     },
     "Herpes Zoster": {
         "color"     : "#D4721A",
@@ -44,7 +44,7 @@ DISEASE_INFO = {
         "deskripsi" : "Infeksi virus akibat reaktivasi virus varisela-zoster (penyebab cacar air). Ditandai dengan ruam melepuh yang terasa nyeri pada satu sisi tubuh.",
         "gejala"    : ["Nyeri, terbakar, atau kesemutan", "Sensitif terhadap sentuhan", "Ruam merah beberapa hari setelah nyeri", "Lepuhan berisi cairan yang pecah dan mengering"],
         "penanganan": "Segera konsultasi ke dokter untuk mendapatkan obat antivirus. Penanganan dini dapat mengurangi keparahan dan durasi penyakit.",
-        "jurnal"    : None,
+        "jurnal"    : "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8876683/",
     },
     "Normal": {
         "color"     : "#1E8A5E",
@@ -64,7 +64,7 @@ DISEASE_INFO = {
         "deskripsi" : "Infeksi jamur pada kulit yang membentuk pola melingkar berwarna merah. Disebabkan oleh jamur, bukan cacing, meski namanya mengandung kata 'worm'.",
         "gejala"    : ["Ruam melingkar berwarna merah", "Tepi ruam lebih menonjol", "Gatal pada area yang terinfeksi", "Kulit bersisik di dalam lingkaran"],
         "penanganan": "Gunakan krim antijamur yang tersedia di apotek. Jaga kebersihan dan keringkan kulit dengan baik. Hindari berbagi handuk atau pakaian.",
-        "jurnal"    : None,
+        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC7375854/",
     },
 }
 
@@ -273,23 +273,54 @@ if "Deteksi" in menu:
                 </div>
             """, unsafe_allow_html=True)
 
-            # Progress bar tiap kelas
+            # Deskripsi penyakit
             st.markdown(
-                "<div style='font-size:0.7rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8896AB;margin-bottom:0.75rem'>"
-                "Probabilitas per Kelas</div>",
+                "<div style='font-size:0.7rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;"
+                "color:#8896AB;margin:1.25rem 0 0.5rem'>Tentang Kondisi Ini</div>",
+                unsafe_allow_html=True
+            )
+            st.markdown(
+                f"<div style='font-size:0.88rem;color:#374151;line-height:1.7;margin-bottom:0.75rem'>"
+                f"{info['deskripsi']}</div>",
                 unsafe_allow_html=True
             )
 
-            for i, cls in enumerate(CLASSES):
-                pct  = float(probs[i]) * 100
-                bold = "font-weight:700;" if cls == label else ""
+            # Gejala
+            st.markdown(
+                "<div style='font-size:0.7rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;"
+                "color:#8896AB;margin-bottom:0.45rem'>Gejala Umum</div>",
+                unsafe_allow_html=True
+            )
+            gejala_html = "".join([
+                f"<div style='display:flex;gap:0.45rem;align-items:flex-start;padding:0.22rem 0;"
+                f"font-size:0.85rem;color:#374151'>"
+                f"<div style='width:6px;height:6px;border-radius:50%;background:{info['color']};"
+                f"margin-top:0.4rem;flex-shrink:0'></div><span>{g}</span></div>"
+                for g in info["gejala"]
+            ])
+            st.markdown(gejala_html, unsafe_allow_html=True)
+
+            # Penanganan
+            st.markdown(
+                "<div style='font-size:0.7rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;"
+                "color:#8896AB;margin:0.85rem 0 0.45rem'>Penanganan</div>",
+                unsafe_allow_html=True
+            )
+            st.markdown(
+                f"<div style='background:rgba(0,0,0,0.03);border-radius:8px;padding:0.7rem 0.9rem;"
+                f"font-size:0.85rem;color:#4B5563;line-height:1.65'>{info['penanganan']}</div>",
+                unsafe_allow_html=True
+            )
+
+            # Link jurnal
+            if info.get("jurnal"):
                 st.markdown(
-                    f"<div style='display:flex;justify-content:space-between;font-size:0.83rem;{bold}margin-bottom:0.2rem'>"
-                    f"<span>{DISEASE_INFO[cls]['icon']} {cls}</span><span>{pct:.1f}%</span></div>",
+                    f"<div style='margin-top:0.75rem'>"
+                    f"<a href='{info['jurnal']}' target='_blank' style='font-size:0.83rem;"
+                    f"color:{info['color']};font-weight:600;text-decoration:none'>"
+                    f"📄 Lihat Jurnal Referensi →</a></div>",
                     unsafe_allow_html=True
                 )
-                st.progress(float(probs[i]))
-                st.markdown("<div style='margin-bottom:0.35rem'></div>", unsafe_allow_html=True)
 
             # Disclaimer
             if label != "Normal":
@@ -313,7 +344,7 @@ if "Deteksi" in menu:
 # =========================================================
 elif "Informasi" in menu:
 
-    st.markdown("## 📖 Informasi Penyakit Kulit")
+    st.markdown("## Informasi Penyakit Kulit")
     st.markdown(
         "<p style='color:#6B7280;font-size:0.95rem;margin-top:-0.5rem;margin-bottom:1.75rem'>"
         "Penjelasan singkat setiap kondisi kulit yang dapat dikenali oleh model.</p>",
