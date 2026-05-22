@@ -190,13 +190,7 @@ with st.sidebar:
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<hr style='margin:0 0 1.25rem'>", unsafe_allow_html=True)
 
-    menu = st.radio(
-        "NAVIGASI",
-        ["🩺  Deteksi Penyakit Kulit", "📖  Informasi Penyakit"],
-        label_visibility="visible"
-    )
 
 
 
@@ -211,6 +205,50 @@ if "Deteksi" in menu:
         "Unggah foto kulit untuk mendapatkan hasil klasifikasi dan confidence score dari model.</p>",
         unsafe_allow_html=True
     )
+
+    # Tutorial & kelas yang didukung
+    with st.expander("ℹ️ Cara Penggunaan & Kelas yang Didukung", expanded=False):
+        col_t1, col_t2 = st.columns(2, gap="medium")
+        with col_t1:
+            st.markdown("""
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;
+                text-transform:uppercase;color:#8896AB;margin-bottom:0.6rem">
+                    🎯 Kelas yang Dapat Dideteksi
+                </div>
+                <div style="font-size:0.87rem;color:#374151;line-height:2">
+                    🔴 &nbsp;<b>Eczema</b> — eksim / dermatitis<br>
+                    🟠 &nbsp;<b>Herpes Zoster</b> — cacar api / shingles<br>
+                    🟢 &nbsp;<b>Normal</b> — kulit sehat<br>
+                    🟣 &nbsp;<b>Ringworm</b> — kurap / tinea corporis
+                </div>
+                <div style="margin-top:0.75rem;background:#FFF0F0;border-radius:8px;
+                padding:0.6rem 0.8rem;font-size:0.82rem;color:#E05C5C">
+                    ⚠️ Gambar di luar 4 kategori ini tetap akan diprediksi ke salah satu kelas,
+                    namun hasilnya tidak dapat diandalkan.
+                </div>
+            """, unsafe_allow_html=True)
+        with col_t2:
+            st.markdown("""
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;
+                text-transform:uppercase;color:#8896AB;margin-bottom:0.6rem">
+                    📋 Tutorial Cara Pakai
+                </div>
+                <div style="font-size:0.87rem;color:#374151;line-height:2">
+                    <b>1.</b> &nbsp;Siapkan foto kulit yang jelas dan cukup cahaya<br>
+                    <b>2.</b> &nbsp;Pastikan area yang bermasalah terlihat jelas di foto<br>
+                    <b>3.</b> &nbsp;Klik <b>Browse files</b> atau seret gambar ke area upload<br>
+                    <b>4.</b> &nbsp;Tunggu hingga model selesai menganalisis<br>
+                    <b>5.</b> &nbsp;Baca hasil prediksi dan confidence score<br>
+                    <b>6.</b> &nbsp;Jika terdeteksi penyakit, konsultasikan ke dokter kulit
+                </div>
+                <div style="margin-top:0.75rem;background:#EFF6FF;border-radius:8px;
+                padding:0.6rem 0.8rem;font-size:0.82rem;color:#1E40AF">
+                    💡 Tips: Gunakan foto resolusi tinggi dengan latar belakang polos
+                    untuk hasil terbaik.
+                </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-bottom:0.75rem'></div>", unsafe_allow_html=True)
 
     uploaded_file = st.file_uploader(
         "Pilih gambar kulit (JPG / PNG)",
@@ -344,7 +382,7 @@ if "Deteksi" in menu:
 # =========================================================
 elif "Informasi" in menu:
 
-    st.markdown("## Informasi Penyakit Kulit")
+    st.markdown("## 📖 Informasi Penyakit Kulit")
     st.markdown(
         "<p style='color:#6B7280;font-size:0.95rem;margin-top:-0.5rem;margin-bottom:1.75rem'>"
         "Penjelasan singkat setiap kondisi kulit yang dapat dikenali oleh model.</p>",
@@ -387,16 +425,13 @@ elif "Informasi" in menu:
                         <span style="font-size:1.6rem">{info['icon']}</span>
                         <span style="font-size:1.15rem;font-weight:700;color:{info['color']};letter-spacing:-0.01em">{cls}</span>
                     </div>
-
                     <div style="font-size:0.87rem;color:#4B5563;line-height:1.7;margin-bottom:1rem">
                         {info['deskripsi']}
                     </div>
-
                     <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8896AB;margin-bottom:0.4rem">
                         Gejala Umum
                     </div>
                     {gejala_html}
-
                     <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8896AB;margin-top:0.9rem;margin-bottom:0.4rem">
                         Penanganan
                     </div>
