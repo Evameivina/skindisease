@@ -190,8 +190,22 @@ with st.sidebar:
         </div>
     """, unsafe_allow_html=True)
 
+    st.markdown("<hr style='border-color:#2A2D3E;margin:0 0 1rem 0'>", unsafe_allow_html=True)
 
+    menu = st.radio(
+        "MENU",
+        ["🩺 Deteksi", "📖 Informasi"],
+        label_visibility="collapsed"
+    )
 
+    st.markdown("<hr style='border-color:#2A2D3E;margin:1rem 0'>", unsafe_allow_html=True)
+
+    st.markdown("""
+        <div style="font-size:0.72rem;color:#555870;line-height:1.7;padding:0 0.25rem">
+            <b style="color:#8896AB">⚠️ Disclaimer</b><br>
+            Aplikasi ini hanya untuk tujuan edukatif. Bukan pengganti diagnosis medis profesional.
+        </div>
+    """, unsafe_allow_html=True)
 
 
 # =========================================================
@@ -266,7 +280,7 @@ if "Deteksi" in menu:
                 text-align: center;
             ">
                 <div style="font-size:2.5rem;margin-bottom:0.75rem">🖼️</div>
-                <div style="font-size:1rem;font-weight:600;color:#374151;margin-bottom:0.3rem">Seret & lepas gambar di sini</div>
+                <div style="font-size:1rem;font-weight:600;color:#374151;margin-bottom:0.3rem">Seret &amp; lepas gambar di sini</div>
                 <div style="font-size:0.83rem;color:#9CA3AF">atau klik <b>Browse files</b> di atas &nbsp;·&nbsp; JPG, JPEG, PNG</div>
             </div>
         """, unsafe_allow_html=True)
@@ -310,6 +324,28 @@ if "Deteksi" in menu:
                     </div>
                 </div>
             """, unsafe_allow_html=True)
+
+            # Confidence bar semua kelas
+            st.markdown(
+                "<div style='font-size:0.7rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;"
+                "color:#8896AB;margin:1rem 0 0.6rem'>Distribusi Confidence</div>",
+                unsafe_allow_html=True
+            )
+            for i, cls in enumerate(CLASSES):
+                cls_info  = DISEASE_INFO[cls]
+                cls_conf  = float(probs[i]) * 100
+                bar_width = max(cls_conf, 1)
+                st.markdown(f"""
+                    <div style="margin-bottom:0.55rem">
+                        <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.2rem">
+                            <span style="color:#374151;font-weight:500">{cls_info['icon']} {cls}</span>
+                            <span style="color:{cls_info['color']};font-weight:600">{cls_conf:.1f}%</span>
+                        </div>
+                        <div style="background:#E5E9F0;border-radius:99px;height:7px">
+                            <div style="width:{bar_width}%;background:{cls_info['color']};height:7px;border-radius:99px;transition:width 0.4s"></div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
             # Deskripsi penyakit
             st.markdown(
