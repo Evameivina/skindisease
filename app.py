@@ -4,315 +4,209 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 import numpy as np
+import gdown
+import os
 
-# ─────────────────────────────────────────────────────────────
+# =========================================================
 # PAGE CONFIG
-# ─────────────────────────────────────────────────────────────
+# =========================================================
 st.set_page_config(
-    page_title="DermaScan - Skin Disease Classifier",
+    page_title="SkinScan — Deteksi Penyakit Kulit",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ─────────────────────────────────────────────────────────────
+# =========================================================
 # CONFIG
-# ─────────────────────────────────────────────────────────────
-IMG_SIZE   = 224
-MODEL_PATH = "convnext_skin_state_dict.pth"
+# =========================================================
 CLASSES    = ["Eczema", "Herpes Zoster", "Normal", "Ringworm"]
+MODEL_URL  = "https://drive.google.com/uc?id=1s2BhRSSuUTRpuANjXkzTYSEAi_wKTuLR"
+MODEL_PATH = "convnext_skin_state_dict.pth"
+device     = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 DISEASE_INFO = {
     "Eczema": {
-        "icon"       : "🔴",
-        "color"      : "#E05C5C",
-        "deskripsi"  : (
+        "color"     : "#E05C5C",
+        "bg"        : "#FFF0F0",
+        "border"    : "#F5C6C6",
+        "icon"      : "🔴",
+        "deskripsi" : (
             "Atopic dermatitis (AD), atau atopic eczema, adalah penyakit kulit inflamasi kronis yang bersifat heterogen secara fenotipik. "
             "Penyakit ini umumnya muncul akibat pemicu lingkungan pada individu yang memiliki predisposisi genetik. "
             "AD ditandai dengan pruritus — terutama memburuk pada malam hari — kulit kering dan menebal, serta papul yang terasa sangat gatal dan dapat mengeluarkan cairan jika digaruk. "
             "Xerosis (kekeringan kulit) dan iktiosis juga merupakan istilah yang sering dikaitkan dengan AD. "
-            "Prevalensi AD sekitar 20% pada anak-anak dan 1–3% pada dewasa. "
-            "AD menempati peringkat ke-15 dalam studi beban penyakit global (1990–2017) di antara semua penyakit non-fatal, dan berada di peringkat pertama di antara penyakit kulit berdasarkan disability-adjusted life-years (DALYs)."
+            "Prevalensi AD sekitar 20% pada anak-anak dan 1–3% pada dewasa, dan menempati peringkat pertama di antara semua penyakit kulit berdasarkan disability-adjusted life-years (DALYs) global."
         ),
-        "gejala"     : [
+        "gejala"    : [
             "Pruritus (gatal intens), terutama memburuk pada malam hari",
             "Kulit kering, menebal, dan bersisik (xerosis/iktiosis)",
             "Papul kemerahan yang dapat mengeluarkan cairan jika digaruk",
             "Lesi pada area fleksural (siku, lutut) atau wajah pada bayi",
             "Bersifat kronis dengan periode remisi dan eksaserbasi (flare)",
         ],
-        "sumber"     : "Afshari et al., Front. Immunol. 2024",
-        "link"       : "https://pmc.ncbi.nlm.nih.gov/articles/PMC10944924/",
+        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC10944924/",
+        "sumber"    : "Afshari et al., Front. Immunol. 2024",
     },
     "Herpes Zoster": {
-        "icon"       : "🟡",
-        "color"      : "#D4A017",
-        "deskripsi"  : (
+        "color"     : "#D4721A",
+        "bg"        : "#FFF5EC",
+        "border"    : "#F5D6B0",
+        "icon"      : "🟡",
+        "deskripsi" : (
             "Herpes zoster (HZ) merupakan reaktivasi virus Varicella-Zoster (VZV) — agen kausal yang sama dengan cacar air (varisela). "
             "VZV bersifat laten di jaringan saraf setelah infeksi primer, dan reaktivasinya umumnya dipicu oleh penurunan imunitas seluler akibat usia lanjut, stres, infeksi lain, atau imunosupresi. "
             "Gejala klinis muncul dalam tiga tahap: fase pre-eruptif (nyeri atau rasa terbakar dalam dermaton yang terkena, minimal 2 hari sebelum ruam), fase eruptif akut (vesikel yang menyakitkan, berlangsung 2–4 minggu), dan fase kronis yang ditandai nyeri persisten lebih dari 4 minggu (postherpetic neuralgia/PHN). "
             "Insiden HZ meningkat seiring usia, berkisar 3,9–11,8 per 1.000 orang per tahun pada usia di atas 65 tahun."
         ),
-        "gejala"     : [
+        "gejala"    : [
             "Fase awal: nyeri, rasa terbakar, atau kesemutan pada satu sisi tubuh",
             "Vesikel multipel yang terasa nyeri mengikuti jalur dermaton",
             "Gejala prodromal: sakit kepala, malaise umum, dan fotofobia",
             "Nyeri yang dapat berlanjut setelah ruam sembuh (postherpetic neuralgia)",
         ],
-        "sumber"     : "Patil et al., Viruses 2022",
-        "link"       : "https://pmc.ncbi.nlm.nih.gov/articles/PMC8876683/",
+        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC8876683/",
+        "sumber"    : "Patil et al., Viruses 2022",
     },
     "Normal": {
-        "icon"       : "🟢",
-        "color"      : "#1E8A5E",
-        "deskripsi"  : (
+        "color"     : "#1E8A5E",
+        "bg"        : "#EDFAF3",
+        "border"    : "#A8DFC7",
+        "icon"      : "🟢",
+        "deskripsi" : (
             "Kulit merupakan organ terbesar tubuh manusia yang tersusun dari tiga lapisan utama: epidermis, dermis, dan hipodermis. "
             "Epidermis umumnya terdiri dari sekitar 40–50 lapisan sel epitel skuamosa yang terutama berasal dari keratinosit, dan terbagi menjadi empat lapisan: stratum basale, stratum spinosum, stratum granulosum, dan stratum corneum. "
-            "Lapisan dermis yang terletak di bawah epidermis sebagian besar tersusun dari jaringan ikat yang mengandung serat kolagen dan elastin, sementara hipodermis merupakan area yang terdiri dari jaringan adiposa. "
+            "Lapisan dermis sebagian besar tersusun dari jaringan ikat yang mengandung serat kolagen dan elastin, sementara hipodermis merupakan area yang terdiri dari jaringan adiposa. "
             "Pada kondisi normal, kulit berfungsi optimal sebagai pelindung pertama tubuh terhadap patogen, radiasi UV, bahan kimia, dan cedera mekanis, sekaligus berperan dalam regulasi suhu tubuh."
         ),
-        "gejala"     : [
+        "gejala"    : [
             "Tidak ditemukan tanda-tanda kelainan atau penyakit kulit",
             "Fungsi barrier kulit optimal — mencegah kehilangan air dan invasi patogen",
             "Warna dan tekstur kulit merata, terhidrasi dengan baik",
             "Tidak ada lesi, kemerahan, bersisik, atau iritasi",
         ],
-        "sumber"     : "Brito et al., Pharmaceutics 2024",
-        "link"       : "https://pmc.ncbi.nlm.nih.gov/articles/PMC11597055/",
+        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC11597055/",
+        "sumber"    : "Brito et al., Pharmaceutics 2024",
     },
     "Ringworm": {
-        "icon"       : "🟠",
-        "color"      : "#D4721A",
-        "deskripsi"  : (
+        "color"     : "#6B4FBF",
+        "bg"        : "#F4F1FF",
+        "border"    : "#C9BFF5",
+        "icon"      : "🟠",
+        "deskripsi" : (
             "Tinea corporis, yang dikenal sebagai ringworm, adalah infeksi jamur superfisial pada kulit yang disebabkan oleh dermatofita. "
             "Trichophyton rubrum merupakan spesies dermatofita paling umum sebagai penyebabnya. "
-            "Infeksi ini dapat terjadi melalui kontak dengan orang atau hewan yang terinfeksi, maupun melalui fomites seperti sisir, pakaian, handuk, dan alas lantai. "
-            "Tinea corporis umumnya tampil sebagai papul dan plak anular (berbentuk cincin) yang terbatas jelas, terasa gatal, dengan hipopigmentasi sentral — tampilan inilah yang melahirkan nama 'ringworm'. "
-            "Tinea infection merupakan kondisi kulit paling prevalen di dunia dan berada di peringkat keempat tertinggi dalam insiden penyakit pada tahun 2016, dengan estimasi risiko seumur hidup sebesar 10–20%."
+            "Infeksi dapat terjadi melalui kontak dengan orang atau hewan yang terinfeksi, maupun melalui fomites seperti sisir, pakaian, handuk, dan alas lantai. "
+            "Tinea corporis umumnya tampil sebagai papul dan plak anular (berbentuk cincin) berbatas jelas dengan hipopigmentasi sentral — tampilan inilah yang melahirkan nama 'ringworm'. "
+            "Tinea infection merupakan kondisi kulit paling prevalen di dunia dan berada di peringkat keempat tertinggi dalam insiden penyakit global, dengan estimasi risiko seumur hidup sebesar 10–20%."
         ),
-        "gejala"     : [
+        "gejala"    : [
             "Papul dan plak anular (cincin) berbatas jelas dengan tepi lebih menonjol",
             "Hipopigmentasi atau clearing pada bagian tengah lesi",
             "Skuama (sisik) pada tepi lesi yang aktif",
             "Rasa gatal (pruritus) pada area yang terinfeksi",
             "Pada kulit gelap, lesi dapat tampak violaseus atau hiperpigmentasi",
         ],
-        "sumber"     : "Van Alfen et al., HCA Healthcare J Med 2026",
-        "link"       : "https://pmc.ncbi.nlm.nih.gov/articles/PMC12971098/",
+        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC12971098/",
+        "sumber"    : "Van Alfen et al., HCA Healthcare J Med 2026",
     },
 }
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# =========================================================
+# DOWNLOAD MODEL
+# =========================================================
+if not os.path.exists(MODEL_PATH):
+    with st.spinner("Mengunduh model, harap tunggu..."):
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
-# ─────────────────────────────────────────────────────────────
-# CUSTOM CSS
-# ─────────────────────────────────────────────────────────────
+# =========================================================
+# CSS
+# =========================================================
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    html, body, [class*="css"] { font-family: 'Sora', sans-serif; }
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+}
 
-    .stApp { background: #0D1117; color: #E6EDF3; }
+/* Background */
+.stApp { background-color: #F7F8FC; }
+.block-container { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; max-width: 1200px; }
 
-    [data-testid="stSidebar"] {
-        background: #161B22;
-        border-right: 1px solid #30363D;
-    }
-    [data-testid="stSidebar"] * { color: #E6EDF3 !important; }
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: #1A1D2E !important;
+    border-right: 1px solid #2A2D3E;
+}
+[data-testid="stSidebar"] * { color: #C8CCDF !important; }
+[data-testid="stSidebar"] hr { border-color: #2A2D3E !important; }
+[data-testid="stSidebar"] .stRadio label { font-size: 0.88rem !important; }
 
-    h1, h2, h3 { font-family: 'Sora', sans-serif !important; font-weight: 700 !important; }
+[data-testid="stSidebar"] .stRadio > label:first-child {
+    font-size: 0.68rem !important;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #555870 !important;
+}
 
-    .main-title {
-        font-family: 'Sora', sans-serif;
-        font-size: 2.4rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #58A6FF 0%, #79C0FF 50%, #A5F3FC 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 0.2rem;
-    }
+[data-testid="stSidebar"] .stRadio [data-testid="stMarkdownContainer"] p {
+    font-size: 0.9rem !important;
+    font-weight: 500;
+}
 
-    .subtitle {
-        color: #8B949E;
-        font-size: 0.95rem;
-        font-weight: 400;
-        letter-spacing: 0.02em;
-        margin-bottom: 2rem;
-    }
+/* Headings */
+h1 { font-weight: 700 !important; letter-spacing: -0.03em !important; color: #0F1117 !important; }
+h2 { font-weight: 600 !important; letter-spacing: -0.02em !important; }
+h3 { font-weight: 600 !important; }
 
-    .result-box {
-        background: linear-gradient(135deg, #161B22 0%, #1C2128 100%);
-        border: 1px solid #30363D;
-        border-radius: 16px;
-        padding: 2rem;
-        margin-top: 1.5rem;
-        position: relative;
-        overflow: hidden;
-    }
-    .result-box::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #58A6FF, #79C0FF, #A5F3FC);
-    }
+/* File uploader */
+[data-testid="stFileUploader"] {
+    background: white;
+    border-radius: 14px;
+    border: 1.5px dashed #CBD5E1;
+    padding: 0.5rem;
+}
 
-    .result-label {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: #8B949E;
-        margin-bottom: 0.3rem;
-        font-family: 'DM Mono', monospace;
-    }
+/* Metric */
+[data-testid="stMetric"] {
+    background: white;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    border: 1.5px solid #E5E9F0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+[data-testid="stMetricLabel"] { font-size: 0.75rem !important; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #8896AB !important; }
+[data-testid="stMetricValue"] { font-size: 1.9rem !important; font-weight: 700 !important; }
 
-    .result-class {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
+/* Progress bar */
+[data-testid="stProgress"] > div > div { border-radius: 99px !important; }
+[data-testid="stProgress"] { border-radius: 99px !important; }
 
-    .confidence-bar-container {
-        background: #21262D;
-        border-radius: 100px;
-        height: 8px;
-        margin: 0.5rem 0;
-        overflow: hidden;
-    }
-
-    .info-card {
-        background: #161B22;
-        border: 1px solid #30363D;
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 0.75rem;
-    }
-    .info-card h4 {
-        color: #58A6FF;
-        margin-bottom: 0.5rem;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-family: 'DM Mono', monospace;
-    }
-
-    .symptom-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.5rem;
-        padding: 0.3rem 0;
-        font-size: 0.9rem;
-        color: #C9D1D9;
-    }
-    .symptom-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #58A6FF;
-        margin-top: 0.4rem;
-        flex-shrink: 0;
-    }
-
-    .source-tag {
-        display: inline-block;
-        margin-top: 0.6rem;
-        font-size: 0.75rem;
-        font-family: 'DM Mono', monospace;
-        color: #6E7681;
-        background: #21262D;
-        border: 1px solid #30363D;
-        border-radius: 6px;
-        padding: 0.2rem 0.6rem;
-        text-decoration: none;
-    }
-
-    .source-tag:hover {
-        color: #58A6FF;
-        border-color: #58A6FF;
-        text-decoration: none;
-    }
-
-    .all-scores-row {
-        display: flex;
-        gap: 0.75rem;
-        margin-top: 1rem;
-        flex-wrap: wrap;
-    }
-    .score-chip {
-        background: #21262D;
-        border: 1px solid #30363D;
-        border-radius: 8px;
-        padding: 0.5rem 0.85rem;
-        font-size: 0.82rem;
-        font-family: 'DM Mono', monospace;
-        color: #8B949E;
-        flex: 1;
-        min-width: 120px;
-        text-align: center;
-    }
-    .score-chip.top { border-color: #58A6FF; color: #58A6FF; }
-    .score-chip .score-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        display: block;
-        margin-bottom: 0.2rem;
-        color: #6E7681;
-    }
-    .score-chip.top .score-label { color: #79C0FF; }
-    .score-chip .score-val { font-size: 1rem; font-weight: 500; }
-
-    .disclaimer {
-        background: #1C2128;
-        border: 1px solid #F0883E40;
-        border-left: 3px solid #F0883E;
-        border-radius: 8px;
-        padding: 0.85rem 1rem;
-        margin-top: 1.5rem;
-        font-size: 0.82rem;
-        color: #C9D1D9;
-    }
-    .disclaimer strong { color: #F0883E; }
-
-    [data-testid="stFileUploader"] {
-        background: #161B22;
-        border: 2px dashed #30363D;
-        border-radius: 12px;
-    }
-    [data-testid="stFileUploader"]:hover { border-color: #58A6FF; }
-
-    .stButton > button {
-        background: linear-gradient(135deg, #1F6FEB, #58A6FF) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 0.6rem 2rem !important;
-        font-family: 'Sora', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 0.9rem !important;
-        width: 100%;
-    }
-    .stButton > button:hover { opacity: 0.85 !important; }
-
-    [data-testid="stMetric"] {
-        background: #161B22;
-        border: 1px solid #30363D;
-        border-radius: 10px;
-        padding: 0.75rem 1rem;
-    }
-    [data-testid="stMetricLabel"] { color: #8B949E !important; font-size: 0.8rem !important; }
-    [data-testid="stMetricValue"] { color: #E6EDF3 !important; font-family: 'DM Mono', monospace !important; }
-
-    #MainMenu, footer, header { display: none !important; }
-    .block-container { padding-top: 2rem !important; max-width: 1100px !important; }
+/* Source tag */
+.source-tag {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.72rem;
+    color: #8896AB;
+    background: #F1F3F8;
+    border: 1px solid #E2E6EF;
+    border-radius: 6px;
+    padding: 0.2rem 0.6rem;
+    text-decoration: none;
+    font-style: italic;
+}
+.source-tag:hover {
+    color: #4F6AF0;
+    border-color: #4F6AF0;
+    text-decoration: none;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────────────────────
+# =========================================================
 # LOAD MODEL
-# ─────────────────────────────────────────────────────────────
+# =========================================================
 @st.cache_resource
 def load_model():
     m = models.convnext_tiny(weights=None)
@@ -331,7 +225,7 @@ def load_model():
     return m.to(device)
 
 transform = transforms.Compose([
-    transforms.Resize((IMG_SIZE, IMG_SIZE)),
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
@@ -343,198 +237,148 @@ def predict(image, model):
     with torch.no_grad():
         out   = model(tensor)
         probs = torch.softmax(out, dim=1).cpu().numpy()[0]
-    return CLASSES[int(np.argmax(probs))], probs
+    return CLASSES[np.argmax(probs)], probs
 
-# ─────────────────────────────────────────────────────────────
+# =========================================================
 # SIDEBAR
-# ─────────────────────────────────────────────────────────────
+# =========================================================
 with st.sidebar:
     st.markdown("""
-        <div style="padding:1.75rem 0 1.5rem; text-align:center;">
-            <div style="font-size:1.5rem; font-weight:700; color:#FFFFFF; letter-spacing:-0.02em;">🔬 DermaScan</div>
-            <div style="font-size:0.7rem; color:#555870; letter-spacing:0.07em; text-transform:uppercase; margin-top:0.3rem;">Skin Disease Detection</div>
+        <div style="text-align:center;padding:1.75rem 0 1.5rem;">
+            <div style="font-size:1.5rem;font-weight:700;color:#FFFFFF!important;letter-spacing:-0.02em;margin-top:0.3rem">SkinScan</div>
+            <div style="font-size:0.7rem;color:#555870!important;letter-spacing:0.07em;text-transform:uppercase;margin-top:0.2rem">Skin Disease Detection</div>
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<hr style='border-color:#30363D; margin:0 0 1rem 0'>", unsafe_allow_html=True)
+    st.markdown("<hr style='border-color:#2A2D3E;margin:0 0 1rem 0'>", unsafe_allow_html=True)
 
     menu = st.radio(
         "MENU",
-        ["🩺 Deteksi Penyakit Kulit", "📚 Informasi Penyakit"],
+        ["Deteksi", "Informasi"],
         label_visibility="collapsed"
     )
 
-    st.markdown("<hr style='border-color:#30363D; margin:1rem 0'>", unsafe_allow_html=True)
+    st.markdown("<hr style='border-color:#2A2D3E;margin:1rem 0'>", unsafe_allow_html=True)
 
     st.markdown("""
-    <div style='color:#6E7681; font-size:0.78rem; line-height:1.7;'>
-        <b style='color:#8B949E;'>Kelas yang Didukung</b><br>
-        • Eczema<br>
-        • Herpes Zoster<br>
-        • Normal<br>
-        • Ringworm
-    </div>
-    <br>
-    <div style='color:#6E7681; font-size:0.75rem;'>
-        ⚠️ Hanya untuk screening awal.<br>Bukan pengganti diagnosis medis.
-    </div>
+        <div style="font-size:0.72rem;color:#555870;line-height:1.7;padding:0 0.25rem">
+            <b style="color:#8896AB">Disclaimer</b><br>
+            Aplikasi ini hanya untuk tujuan edukatif. Bukan pengganti diagnosis medis profesional.
+        </div>
     """, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────────────────────
-# PAGE: DETEKSI
-# ─────────────────────────────────────────────────────────────
-if "🩺 Deteksi" in menu:
+# =========================================================
+# MENU: DETEKSI
+# =========================================================
+if "Deteksi" in menu:
 
-    st.markdown('<p class="main-title">Deteksi Penyakit Kulit</p>', unsafe_allow_html=True)
-    st.markdown('<p class="subtitle">Unggah foto kulit untuk mendapatkan hasil klasifikasi menggunakan model ConvNeXt-Tiny</p>', unsafe_allow_html=True)
+    st.markdown("## Deteksi Penyakit Kulit")
+    st.caption("Unggah foto kulit untuk mendapatkan hasil klasifikasi dan confidence score dari model.")
 
-    col_upload, col_result = st.columns([1, 1], gap="large")
+    with st.expander("Cara Penggunaan & Kelas yang Didukung", expanded=False):
+        col_t1, col_t2 = st.columns(2, gap="medium")
+        with col_t1:
+            st.markdown("**Kelas yang Dapat Dideteksi**")
+            st.write("- Eczema — eksim / dermatitis")
+            st.write("- Herpes Zoster — cacar api / shingles")
+            st.write("- Normal — kulit sehat")
+            st.write("- Ringworm — kurap / tinea corporis")
+            st.warning("Gambar di luar 4 kategori ini tetap akan diprediksi ke salah satu kelas, namun hasilnya tidak dapat diandalkan.")
+        with col_t2:
+            st.markdown("**Tutorial Cara Pakai**")
+            st.write("1. Siapkan foto kulit yang jelas dan cukup cahaya")
+            st.write("2. Pastikan area yang bermasalah terlihat jelas di foto")
+            st.write("3. Klik **Browse files** atau seret gambar ke area upload")
+            st.write("4. Tunggu hingga model selesai menganalisis")
+            st.write("5. Baca hasil prediksi dan confidence score")
+            st.write("6. Jika terdeteksi penyakit, konsultasikan ke dokter kulit")
+            st.info("Tips: Gunakan foto resolusi tinggi dengan latar belakang polos untuk hasil terbaik.")
 
-    with col_upload:
-        st.markdown("#### 📁 Unggah Gambar")
-        uploaded = st.file_uploader(
-            "Pilih gambar kulit (JPG, PNG)",
-            type=["jpg", "jpeg", "png"],
-            label_visibility="collapsed"
-        )
+    uploaded_file = st.file_uploader(
+        "Pilih gambar kulit (JPG / PNG)",
+        type=["jpg", "jpeg", "png"],
+        label_visibility="collapsed"
+    )
 
-        if uploaded:
-            image = Image.open(uploaded)
-            st.image(image, caption="Gambar yang diunggah", use_container_width=True)
-            st.markdown("<br>", unsafe_allow_html=True)
-            c1, c2 = st.columns(2)
-            with c1:
-                st.metric("Lebar", f"{image.width} px")
-            with c2:
-                st.metric("Tinggi", f"{image.height} px")
-            run_btn = st.button("🔍 Analisis Sekarang", use_container_width=True)
-        else:
-            st.markdown("""
-            <div style='text-align:center; padding:3rem 1rem; color:#6E7681; font-size:0.9rem;'>
-                <div style='font-size:3rem; margin-bottom:0.75rem;'>🖼️</div>
-                Seret & lepas gambar di sini<br>atau klik untuk memilih file
-            </div>
-            """, unsafe_allow_html=True)
-            run_btn = False
+    if uploaded_file is None:
+        st.info("Unggah foto kulit (JPG/PNG) menggunakan tombol di atas.")
 
-    with col_result:
-        st.markdown("#### 📊 Hasil Analisis")
+    else:
+        image = Image.open(uploaded_file)
 
-        if uploaded and run_btn:
-            with st.spinner("Menganalisis gambar..."):
-                try:
-                    model_inst   = load_model()
-                    pred_class, probs = predict(image, model_inst)
-                    info         = DISEASE_INFO[pred_class]
-                    top_conf     = float(probs[CLASSES.index(pred_class)]) * 100
-                    color        = info["color"]
+        with st.spinner("Menganalisis gambar..."):
+            model  = load_model()
+            label, probs = predict(image, model)
 
-                    # Result box
-                    st.markdown(f"""
-                    <div class="result-box">
-                        <div class="result-label">Hasil Klasifikasi</div>
-                        <div class="result-class" style="color:{color};">{info['icon']} {pred_class}</div>
-                        <div class="result-label" style="margin-top:0.75rem;">Confidence Score</div>
-                        <div style="font-size:1.8rem; font-family:'DM Mono',monospace; font-weight:600; color:{color};">{top_conf:.1f}%</div>
-                        <div class="confidence-bar-container">
-                            <div style="height:100%; border-radius:100px; width:{top_conf:.1f}%;
-                                        background:linear-gradient(90deg,{color}88,{color});"></div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+        info = DISEASE_INFO[label]
+        conf = float(probs[CLASSES.index(label)]) * 100
 
-                    # All class scores
-                    chips_html = '<div class="all-scores-row">'
-                    for i, cls in enumerate(CLASSES):
-                        pct    = float(probs[i]) * 100
-                        is_top = cls == pred_class
-                        chips_html += f"""
-                        <div class="score-chip {'top' if is_top else ''}">
-                            <span class="score-label">{cls}</span>
-                            <span class="score-val">{pct:.1f}%</span>
-                        </div>"""
-                    chips_html += '</div>'
-                    st.markdown(chips_html, unsafe_allow_html=True)
+        _, center, _ = st.columns([1, 2, 1])
 
-                    st.markdown("<br>", unsafe_allow_html=True)
+        with center:
+            st.image(image, use_container_width=True)
+            st.divider()
 
-                    # Deskripsi
-                    st.markdown(f"""
-                    <div class="info-card">
-                        <h4>Deskripsi</h4>
-                        <p style="color:#C9D1D9; font-size:0.88rem; line-height:1.7; margin:0;">
-                            {info['deskripsi']}
-                        </p>
-                        <a href="{info['link']}" target="_blank" class="source-tag">📄 {info['sumber']} ↗</a>
-                    </div>
-                    """, unsafe_allow_html=True)
+            st.subheader(f"Hasil: {label}")
+            st.metric(label="Confidence Score", value=f"{conf:.2f}%")
+            st.divider()
 
-                    # Gejala
-                    gejala_items = "".join([
-                        f'<div class="symptom-item"><div class="symptom-dot" style="background:{color};"></div><span>{g}</span></div>'
-                        for g in info["gejala"]
-                    ])
-                    st.markdown(f"""
-                    <div class="info-card">
-                        <h4>Gejala Umum</h4>
-                        {gejala_items}
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                    # Disclaimer
-                    st.markdown("""
-                    <div class="disclaimer">
-                        <strong>⚠️ Disclaimer:</strong> Hasil ini merupakan output screening awal berbasis AI dan
-                        <strong>tidak menggantikan diagnosis medis</strong> oleh tenaga kesehatan profesional.
-                        Segera konsultasikan ke dokter untuk penanganan lebih lanjut.
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                except FileNotFoundError:
-                    st.error(f"❌ File model tidak ditemukan: `{MODEL_PATH}`\n\nPastikan file berada di direktori yang sama dengan `app.py`.")
-                except Exception as e:
-                    st.error(f"❌ Terjadi kesalahan: {e}")
-
-        elif not uploaded:
-            st.markdown("""
-            <div style='text-align:center; padding:4rem 1rem; color:#6E7681;'>
-                <div style='font-size:2.5rem; margin-bottom:0.75rem;'>🔬</div>
-                <div style='font-size:0.9rem;'>Unggah gambar terlebih dahulu<br>untuk melihat hasil analisis</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        elif not run_btn:
-            st.markdown("""
-            <div style='text-align:center; padding:4rem 1rem; color:#6E7681;'>
-                <div style='font-size:2.5rem; margin-bottom:0.75rem;'>👆</div>
-                <div style='font-size:0.9rem;'>Klik <strong style='color:#58A6FF;'>Analisis Sekarang</strong><br>untuk memulai klasifikasi</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-# ─────────────────────────────────────────────────────────────
-# PAGE: INFORMASI PENYAKIT
-# ─────────────────────────────────────────────────────────────
-elif "📚 Informasi" in menu:
-
-    st.markdown('<p class="main-title">Informasi Penyakit Kulit</p>', unsafe_allow_html=True)
-    st.markdown('<p class="subtitle">Penjelasan singkat mengenai empat kondisi kulit yang dapat dideteksi oleh aplikasi ini</p>', unsafe_allow_html=True)
-
-    for cls, info in DISEASE_INFO.items():
-        color = info["color"]
-
-        with st.expander(f"{info['icon']}  {cls}", expanded=(cls == "Normal")):
-            st.markdown(f"""
-            <p style="color:#C9D1D9; font-size:0.92rem; line-height:1.75; margin-bottom:0.75rem;">
-                {info['deskripsi']}
-            </p>
-            <a href="{info['link']}" target="_blank" class="source-tag">📄 {info['sumber']} ↗</a>
-            """, unsafe_allow_html=True)
+            st.markdown("**Tentang Kondisi Ini**")
+            st.write(info["deskripsi"])
+            st.markdown(
+                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">📄 {info["sumber"]} ↗</a>',
+                unsafe_allow_html=True
+            )
 
             st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown(f"<p style='color:{color}; font-weight:600; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.1em; font-family:DM Mono,monospace; margin-bottom:0.25rem;'>Gejala Umum</p>", unsafe_allow_html=True)
+            st.markdown("**Gejala Umum**")
+            for g in info["gejala"]:
+                st.write(f"— {g}")
 
-            gejala_items = "".join([
-                f'<div class="symptom-item"><div class="symptom-dot" style="background:{color};"></div><span style="font-size:0.88rem;">{g}</span></div>'
-                for g in info["gejala"]
-            ])
-            st.markdown(gejala_items, unsafe_allow_html=True)
+            if label != "Normal":
+                st.warning("Hasil ini **bukan diagnosis medis**. Segera konsultasikan ke dokter kulit untuk pemeriksaan lebih lanjut.")
+
+# =========================================================
+# MENU: INFORMASI
+# =========================================================
+elif "Informasi" in menu:
+
+    st.markdown("## Informasi Penyakit Kulit")
+    st.caption("Pilih kondisi kulit di bawah untuk melihat penjelasan lengkapnya.")
+
+    btn_cols = st.columns(4, gap="small")
+    for idx, cls in enumerate(DISEASE_INFO.keys()):
+        with btn_cols[idx]:
+            if st.button(cls, key=f"btn_{cls}", use_container_width=True):
+                st.session_state["selected_info"] = cls
+                st.rerun()
+
+    st.divider()
+
+    selected = st.session_state.get("selected_info", None)
+
+    if selected is None:
+        st.info("Pilih salah satu kondisi di atas untuk melihat informasi lengkapnya.")
+
+    else:
+        info = DISEASE_INFO[selected]
+
+        _, center_info, _ = st.columns([1, 3, 1])
+        with center_info:
+            st.subheader(selected)
+            st.divider()
+
+            st.markdown("**Deskripsi**")
+            st.write(info["deskripsi"])
+            st.markdown(
+                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">📄 {info["sumber"]} ↗</a>',
+                unsafe_allow_html=True
+            )
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("**Gejala Umum**")
+            for g in info["gejala"]:
+                st.write(f"— {g}")
+
+    st.divider()
+    st.warning("Informasi di atas bersifat **edukatif**. Bukan pengganti diagnosis medis profesional. Selalu konsultasikan kondisi kulit Anda kepada tenaga medis profesional.")
