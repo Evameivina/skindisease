@@ -198,17 +198,7 @@ with st.sidebar:
         label_visibility="visible"
     )
 
-    st.markdown("<hr style='margin:1.25rem 0'>", unsafe_allow_html=True)
 
-    st.markdown("""
-        <div style="font-size:0.68rem;color:#555870!important;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:0.75rem">Tentang Model</div>
-        <div style="font-size:0.82rem;color:#8896AB!important;line-height:1.7">
-            Arsitektur &nbsp;<strong style="color:#C8CCDF!important">ConvNeXt-Tiny</strong><br>
-            Pretrained &nbsp;<strong style="color:#C8CCDF!important">ImageNet</strong><br>
-            Test Accuracy &nbsp;<strong style="color:#C8CCDF!important">99.57%</strong><br>
-            Kelas &nbsp;<strong style="color:#C8CCDF!important">4 penyakit</strong>
-        </div>
-    """, unsafe_allow_html=True)
 
 # =========================================================
 # MENU: DETEKSI
@@ -253,14 +243,13 @@ if "Deteksi" in menu:
         info = DISEASE_INFO[label]
         conf = float(probs[CLASSES.index(label)]) * 100
 
-        col_img, col_res = st.columns([1, 1], gap="large")
+        # Layout terpusat vertikal
+        _, center, _ = st.columns([1, 2, 1])
 
-        # ── Kolom kiri: gambar
-        with col_img:
+        with center:
+            # Gambar
             st.image(image, use_container_width=True, caption="")
-
-        # ── Kolom kanan: hasil
-        with col_res:
+            st.markdown("<div style='margin-bottom:1.25rem'></div>", unsafe_allow_html=True)
 
             # Badge hasil
             st.markdown(f"""
@@ -293,7 +282,6 @@ if "Deteksi" in menu:
 
             for i, cls in enumerate(CLASSES):
                 pct  = float(probs[i]) * 100
-                col  = DISEASE_INFO[cls]["color"]
                 bold = "font-weight:700;" if cls == label else ""
                 st.markdown(
                     f"<div style='display:flex;justify-content:space-between;font-size:0.83rem;{bold}margin-bottom:0.2rem'>"
