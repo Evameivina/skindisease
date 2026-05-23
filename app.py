@@ -7,7 +7,6 @@ import numpy as np
 import gdown
 import os
 
-# PAGE CONFIG
 st.set_page_config(
     page_title="SkinScan — Deteksi Penyakit Kulit",
     page_icon="",
@@ -15,7 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CONFIG
 CLASSES    = ["Eczema", "Herpes Zoster", "Normal", "Ringworm"]
 MODEL_URL  = "https://drive.google.com/uc?id=1s2BhRSSuUTRpuANjXkzTYSEAi_wKTuLR"
 MODEL_PATH = "convnext_skin_state_dict.pth"
@@ -23,66 +21,47 @@ device     = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 DISEASE_INFO = {
     "Eczema": {
-        "color"  : "#E05C5C",
+        "color"    : "#E05C5C",
         "deskripsi": (
-            "Eczema atau atopic dermatitis adalah penyakit kulit inflamasi kronis yang ditandai dengan lesi kulit kemerahan yang gatal (pruritus), "
-            "kulit kering dan menebal, serta papul yang dapat mengeluarkan cairan bening jika digaruk. "
-            "Penyakit ini bersifat kambuhan dan umumnya dipicu oleh faktor lingkungan pada individu yang memiliki predisposisi genetik. "
-            "Prevalensinya sekitar 20% pada anak-anak dan 1–3% pada dewasa, serta menempati peringkat pertama di antara semua penyakit kulit "
-            "berdasarkan disability-adjusted life-years (DALYs) global."
+            "Penyakit kulit inflamasi kronis dengan gejala kemerahan, gatal, dan kulit kering atau menebal. "
+            "Bersifat kambuhan, dipicu faktor lingkungan, dan lebih umum pada anak-anak (20%) dibanding dewasa (1–3%)."
         ),
-        "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC10944924/",
-        "sumber" : "Afshari et al., Front. Immunol. 2024",
+        "jurnal"   : "https://pmc.ncbi.nlm.nih.gov/articles/PMC10944924/",
+        "sumber"   : "Afshari et al., Front. Immunol. 2024",
     },
     "Herpes Zoster": {
-        "color"  : "#D4721A",
+        "color"    : "#D4721A",
         "deskripsi": (
-            "Herpes zoster atau cacar ular adalah penyakit infeksi virus yang disebabkan oleh reaktivasi virus Varicella-Zoster (VZV), "
-            "yaitu virus yang sama dengan penyebab cacar air. "
-            "Setelah infeksi cacar air awal, VZV tetap laten di ganglia sensoris dan dapat aktif kembali, "
-            "umumnya saat daya tahan tubuh menurun akibat usia lanjut, stres, atau imunosupresi. "
-            "Reaktivasi ini menimbulkan ruam vesikel yang terasa nyeri dan mengikuti satu jalur dermaton pada satu sisi tubuh."
+            "Infeksi akibat reaktivasi virus Varicella-Zoster (VZV) yang sebelumnya menyebabkan cacar air. "
+            "Ditandai ruam vesikel nyeri yang mengikuti satu jalur saraf (dermaton), umumnya saat daya tahan tubuh menurun."
         ),
-        "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC8876683/",
-        "sumber" : "Patil et al., Viruses 2022",
+        "jurnal"   : "https://pmc.ncbi.nlm.nih.gov/articles/PMC8876683/",
+        "sumber"   : "Patil et al., Viruses 2022",
     },
     "Normal": {
-        "color"  : "#1E8A5E",
+        "color"    : "#1E8A5E",
         "deskripsi": (
-            "Kulit normal adalah kondisi kulit yang sehat dengan fungsi barrier yang optimal. "
-            "Kulit merupakan organ terbesar tubuh manusia yang tersusun dari tiga lapisan utama — epidermis, dermis, dan hipodermis — "
-            "yang berfungsi sebagai pelindung tubuh terhadap patogen, radiasi UV, bahan kimia, dan cedera mekanis, "
-            "sekaligus berperan dalam menjaga keseimbangan cairan dan regulasi suhu tubuh. "
-            "Pada kondisi ini tidak ditemukan tanda-tanda kelainan atau penyakit kulit."
+            "Kondisi kulit sehat tanpa tanda kelainan. Kulit berfungsi optimal sebagai pelindung tubuh terhadap patogen, "
+            "UV, dan cedera, sekaligus menjaga keseimbangan cairan dan suhu tubuh."
         ),
-        "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC11597055/",
-        "sumber" : "Brito et al., Pharmaceutics 2024",
+        "jurnal"   : "https://pmc.ncbi.nlm.nih.gov/articles/PMC11597055/",
+        "sumber"   : "Brito et al., Pharmaceutics 2024",
     },
     "Ringworm": {
-        "color"  : "#6B4FBF",
+        "color"    : "#6B4FBF",
         "deskripsi": (
-            "Ringworm atau tinea corporis adalah infeksi jamur superfisial pada kulit yang disebabkan oleh dermatofita, "
-            "dengan Trichophyton rubrum sebagai spesies paling umum. "
-            "Infeksi ini menampilkan lesi berbentuk cincin (anular) berbatas jelas dengan hipopigmentasi di bagian tengah, "
-            "yang menjadi asal nama 'ringworm'. Penyakit ini dapat ditularkan melalui kontak langsung dengan orang atau hewan yang terinfeksi, "
-            "maupun melalui benda seperti handuk, pakaian, atau lantai. "
-            "Ringworm merupakan kondisi kulit paling prevalen di dunia dengan estimasi risiko seumur hidup sebesar 10–20%."
+            "Infeksi jamur superfisial (dermatofita) pada kulit dengan ciri khas lesi berbentuk cincin berbatas jelas. "
+            "Menular melalui kontak langsung dengan orang, hewan, atau benda terinfeksi."
         ),
-        "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC12971098/",
-        "sumber" : "Van Alfen et al., HCA Healthcare J Med 2026",
+        "jurnal"   : "https://pmc.ncbi.nlm.nih.gov/articles/PMC12971098/",
+        "sumber"   : "Van Alfen et al., HCA Healthcare J Med 2026",
     },
 }
 
-# =========================================================
-# DOWNLOAD MODEL
-# =========================================================
 if not os.path.exists(MODEL_PATH):
     with st.spinner("Mengunduh model, harap tunggu..."):
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
-# =========================================================
-# CSS
-# =========================================================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -156,9 +135,6 @@ h3 { font-weight: 600 !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# LOAD MODEL
-# =========================================================
 @st.cache_resource
 def load_model():
     m = models.convnext_tiny(weights=None)
@@ -191,9 +167,7 @@ def predict(image, model):
         probs = torch.softmax(out, dim=1).cpu().numpy()[0]
     return CLASSES[np.argmax(probs)], probs
 
-# =========================================================
 # SIDEBAR
-# =========================================================
 with st.sidebar:
     st.markdown("""
         <div style="text-align:center;padding:1.75rem 0 1.5rem;">
@@ -215,13 +189,11 @@ with st.sidebar:
     st.markdown("""
         <div style="font-size:0.72rem;color:#555870;line-height:1.7;padding:0 0.25rem">
             <b style="color:#8896AB">Disclaimer</b><br>
-            Aplikasi ini hanya untuk tujuan edukatif. Bukan pengganti diagnosis medis profesional.
+            Aplikasi ini bukan pengganti diagnosis medis profesional.
         </div>
     """, unsafe_allow_html=True)
 
-# =========================================================
 # MENU: DETEKSI
-# =========================================================
 if "Deteksi" in menu:
 
     st.markdown("## Deteksi Penyakit Kulit")
@@ -231,11 +203,11 @@ if "Deteksi" in menu:
         col_t1, col_t2 = st.columns(2, gap="medium")
         with col_t1:
             st.markdown("**Kelas yang Dapat Dideteksi**")
-            st.write("- Eczema — eksim / dermatitis")
-            st.write("- Herpes Zoster — cacar api / shingles")
-            st.write("- Normal — kulit sehat")
-            st.write("- Ringworm — kurap / tinea corporis")
-            st.warning("Gambar di luar 4 kategori ini tetap akan diprediksi ke salah satu kelas, namun hasilnya tidak dapat diandalkan.")
+            st.write("- Eczema")
+            st.write("- Herpes Zoster")
+            st.write("- Normal")
+            st.write("- Ringworm")
+            st.warning("Gambar di luar 4 kategori ini tetap akan diprediksi ke salah satu kelas, namun hasilnya tidak valid.")
         with col_t2:
             st.markdown("**Tutorial Cara Pakai**")
             st.write("1. Siapkan foto kulit yang jelas dan cukup cahaya")
@@ -259,7 +231,7 @@ if "Deteksi" in menu:
         image = Image.open(uploaded_file)
 
         with st.spinner("Menganalisis gambar..."):
-            model  = load_model()
+            model        = load_model()
             label, probs = predict(image, model)
 
         info = DISEASE_INFO[label]
@@ -278,16 +250,15 @@ if "Deteksi" in menu:
             st.markdown("**Tentang Kondisi Ini**")
             st.write(info["deskripsi"])
             st.markdown(
-                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">{info["sumber"]} ↗</a>',
+                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">'
+                f'Baca artikel selengkapnya — {info["sumber"]} ↗</a>',
                 unsafe_allow_html=True
             )
 
             if label != "Normal":
                 st.warning("Hasil ini **bukan diagnosis medis**. Segera konsultasikan ke dokter kulit untuk pemeriksaan lebih lanjut.")
 
-# =========================================================
 # MENU: INFORMASI
-# =========================================================
 elif "Informasi" in menu:
 
     st.markdown("## Informasi Penyakit Kulit")
@@ -317,9 +288,10 @@ elif "Informasi" in menu:
 
             st.write(info["deskripsi"])
             st.markdown(
-                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">{info["sumber"]} ↗</a>',
+                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">'
+                f'Baca artikel selengkapnya — {info["sumber"]} ↗</a>',
                 unsafe_allow_html=True
             )
 
     st.divider()
-    st.warning("Informasi di atas bersifat **edukatif**. Bukan pengganti diagnosis medis profesional. Selalu konsultasikan kondisi kulit Anda kepada tenaga medis profesional.")
+    st.warning("Informasi di atas bukan pengganti diagnosis medis profesional. Selalu konsultasikan kondisi kulit Anda kepada tenaga medis profesional.")
