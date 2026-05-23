@@ -7,19 +7,15 @@ import numpy as np
 import gdown
 import os
 
-# =========================================================
 # PAGE CONFIG
-# =========================================================
 st.set_page_config(
     page_title="SkinScan — Deteksi Penyakit Kulit",
-    page_icon="🔬",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# =========================================================
 # CONFIG
-# =========================================================
 CLASSES    = ["Eczema", "Herpes Zoster", "Normal", "Ringworm"]
 MODEL_URL  = "https://drive.google.com/uc?id=1s2BhRSSuUTRpuANjXkzTYSEAi_wKTuLR"
 MODEL_PATH = "convnext_skin_state_dict.pth"
@@ -28,47 +24,49 @@ device     = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 DISEASE_INFO = {
     "Eczema": {
         "color"  : "#E05C5C",
-        "icon"   : "🔴",
         "deskripsi": (
-            "Atopic dermatitis (AD) adalah penyakit kulit inflamasi kronis yang ditandai dengan pruritus intens, "
-            "kulit kering (xerosis), dan papul kemerahan yang bersifat residif. "
-            "Prevalensinya sekitar 20% pada anak-anak dan 1–3% pada dewasa, "
-            "dan menempati peringkat pertama di antara semua penyakit kulit berdasarkan disability-adjusted life-years (DALYs) global."
+            "Eczema atau atopic dermatitis adalah penyakit kulit inflamasi kronis yang ditandai dengan lesi kulit kemerahan yang gatal (pruritus), "
+            "kulit kering dan menebal, serta papul yang dapat mengeluarkan cairan bening jika digaruk. "
+            "Penyakit ini bersifat kambuhan dan umumnya dipicu oleh faktor lingkungan pada individu yang memiliki predisposisi genetik. "
+            "Prevalensinya sekitar 20% pada anak-anak dan 1–3% pada dewasa, serta menempati peringkat pertama di antara semua penyakit kulit "
+            "berdasarkan disability-adjusted life-years (DALYs) global."
         ),
         "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC10944924/",
         "sumber" : "Afshari et al., Front. Immunol. 2024",
     },
     "Herpes Zoster": {
         "color"  : "#D4721A",
-        "icon"   : "🟡",
         "deskripsi": (
-            "Herpes zoster adalah reaktivasi virus Varicella-Zoster (VZV) yang sebelumnya bersifat laten di ganglia sensoris "
-            "setelah infeksi cacar air. Reaktivasi umumnya dipicu oleh penurunan imunitas akibat usia lanjut, stres, atau imunosupresi, "
-            "dan menimbulkan ruam vesikel yang nyeri mengikuti satu jalur dermaton."
+            "Herpes zoster atau cacar ular adalah penyakit infeksi virus yang disebabkan oleh reaktivasi virus Varicella-Zoster (VZV), "
+            "yaitu virus yang sama dengan penyebab cacar air. "
+            "Setelah infeksi cacar air awal, VZV tetap laten di ganglia sensoris dan dapat aktif kembali, "
+            "umumnya saat daya tahan tubuh menurun akibat usia lanjut, stres, atau imunosupresi. "
+            "Reaktivasi ini menimbulkan ruam vesikel yang terasa nyeri dan mengikuti satu jalur dermaton pada satu sisi tubuh."
         ),
         "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC8876683/",
         "sumber" : "Patil et al., Viruses 2022",
     },
     "Normal": {
         "color"  : "#1E8A5E",
-        "icon"   : "🟢",
         "deskripsi": (
-            "Kulit normal merupakan kondisi kulit sehat dengan fungsi barrier yang optimal. "
-            "Kulit tersusun dari tiga lapisan utama — epidermis, dermis, dan hipodermis — "
-            "yang bersama-sama melindungi tubuh dari patogen, radiasi UV, bahan kimia, dan cedera mekanis, "
-            "sekaligus berperan dalam regulasi suhu tubuh."
+            "Kulit normal adalah kondisi kulit yang sehat dengan fungsi barrier yang optimal. "
+            "Kulit merupakan organ terbesar tubuh manusia yang tersusun dari tiga lapisan utama — epidermis, dermis, dan hipodermis — "
+            "yang berfungsi sebagai pelindung tubuh terhadap patogen, radiasi UV, bahan kimia, dan cedera mekanis, "
+            "sekaligus berperan dalam menjaga keseimbangan cairan dan regulasi suhu tubuh. "
+            "Pada kondisi ini tidak ditemukan tanda-tanda kelainan atau penyakit kulit."
         ),
         "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC11597055/",
         "sumber" : "Brito et al., Pharmaceutics 2024",
     },
     "Ringworm": {
         "color"  : "#6B4FBF",
-        "icon"   : "🟠",
         "deskripsi": (
-            "Tinea corporis (ringworm) adalah infeksi jamur superfisial pada kulit yang disebabkan oleh dermatofita, "
-            "paling umum Trichophyton rubrum. Penyakit ini menampilkan lesi anular (berbentuk cincin) berbatas jelas "
-            "dengan hipopigmentasi sentral, dan merupakan kondisi kulit paling prevalen di dunia "
-            "dengan estimasi risiko seumur hidup sebesar 10–20%."
+            "Ringworm atau tinea corporis adalah infeksi jamur superfisial pada kulit yang disebabkan oleh dermatofita, "
+            "dengan Trichophyton rubrum sebagai spesies paling umum. "
+            "Infeksi ini menampilkan lesi berbentuk cincin (anular) berbatas jelas dengan hipopigmentasi di bagian tengah, "
+            "yang menjadi asal nama 'ringworm'. Penyakit ini dapat ditularkan melalui kontak langsung dengan orang atau hewan yang terinfeksi, "
+            "maupun melalui benda seperti handuk, pakaian, atau lantai. "
+            "Ringworm merupakan kondisi kulit paling prevalen di dunia dengan estimasi risiko seumur hidup sebesar 10–20%."
         ),
         "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC12971098/",
         "sumber" : "Van Alfen et al., HCA Healthcare J Med 2026",
@@ -280,7 +278,7 @@ if "Deteksi" in menu:
             st.markdown("**Tentang Kondisi Ini**")
             st.write(info["deskripsi"])
             st.markdown(
-                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">📄 {info["sumber"]} ↗</a>',
+                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">{info["sumber"]} ↗</a>',
                 unsafe_allow_html=True
             )
 
@@ -319,7 +317,7 @@ elif "Informasi" in menu:
 
             st.write(info["deskripsi"])
             st.markdown(
-                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">📄 {info["sumber"]} ↗</a>',
+                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">{info["sumber"]} ↗</a>',
                 unsafe_allow_html=True
             )
 
