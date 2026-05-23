@@ -195,9 +195,10 @@ with st.sidebar:
 
 # MENU: DETEKSI
 if "Deteksi" in menu:
+
     st.markdown("<h2 style='text-align:center;'>Deteksi Penyakit Kulit</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center;color:#8896AB;font-size:0.9rem;'>Unggah foto kulit untuk mendapatkan hasil klasifikasi dan confidence score dari model.</p>", unsafe_allow_html=True)
-    
+
     with st.expander("Cara Penggunaan & Kelas yang Didukung", expanded=False):
         col_t1, col_t2 = st.columns(2, gap="medium")
         with col_t1:
@@ -260,8 +261,8 @@ if "Deteksi" in menu:
 # MENU: INFORMASI
 elif "Informasi" in menu:
 
-    st.markdown("## Informasi Penyakit Kulit")
-    st.caption("Pilih kondisi kulit di bawah untuk melihat penjelasan lengkapnya.")
+    st.markdown("<h2 style='text-align:center;'>Informasi Penyakit Kulit</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#8896AB;font-size:0.9rem;'>Pilih kondisi kulit di bawah untuk melihat penjelasan lengkapnya.</p>", unsafe_allow_html=True)
 
     btn_cols = st.columns(4, gap="small")
     for idx, cls in enumerate(DISEASE_INFO.keys()):
