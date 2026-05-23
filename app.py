@@ -195,10 +195,10 @@ with st.sidebar:
 
 # MENU: DETEKSI
 if "Deteksi" in menu:
+    st.markdown("<h2 style='text-align:center;'>Deteksi Penyakit Kulit</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#8896AB;font-size:0.9rem;'>Unggah foto kulit untuk mendapatkan hasil klasifikasi dan confidence score dari model.</p>", unsafe_allow_html=True)
 
-    st.markdown("## Deteksi Penyakit Kulit")
-    st.caption("Unggah foto kulit untuk mendapatkan hasil klasifikasi dan confidence score dari model.")
-
+    
     with st.expander("Cara Penggunaan & Kelas yang Didukung", expanded=False):
         col_t1, col_t2 = st.columns(2, gap="medium")
         with col_t1:
