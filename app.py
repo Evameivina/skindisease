@@ -27,85 +27,51 @@ device     = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 DISEASE_INFO = {
     "Eczema": {
-        "color"     : "#E05C5C",
-        "bg"        : "#FFF0F0",
-        "border"    : "#F5C6C6",
-        "icon"      : "🔴",
-        "deskripsi" : (
+        "color"  : "#E05C5C",
+        "icon"   : "🔴",
+        "deskripsi": (
             "Atopic dermatitis (AD) adalah penyakit kulit inflamasi kronis yang ditandai dengan pruritus intens, "
             "kulit kering (xerosis), dan papul kemerahan yang bersifat residif. "
             "Prevalensinya sekitar 20% pada anak-anak dan 1–3% pada dewasa, "
             "dan menempati peringkat pertama di antara semua penyakit kulit berdasarkan disability-adjusted life-years (DALYs) global."
         ),
-        "gejala"    : [
-            "Pruritus (gatal intens), terutama memburuk pada malam hari",
-            "Kulit kering, menebal, dan bersisik (xerosis/iktiosis)",
-            "Papul kemerahan yang dapat mengeluarkan cairan jika digaruk",
-            "Lesi pada area fleksural (siku, lutut) atau wajah pada bayi",
-            "Bersifat kronis dengan periode remisi dan eksaserbasi (flare)",
-        ],
-        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC10944924/",
-        "sumber"    : "Afshari et al., Front. Immunol. 2024",
+        "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC10944924/",
+        "sumber" : "Afshari et al., Front. Immunol. 2024",
     },
     "Herpes Zoster": {
-        "color"     : "#D4721A",
-        "bg"        : "#FFF5EC",
-        "border"    : "#F5D6B0",
-        "icon"      : "🟡",
-        "deskripsi" : (
+        "color"  : "#D4721A",
+        "icon"   : "🟡",
+        "deskripsi": (
             "Herpes zoster adalah reaktivasi virus Varicella-Zoster (VZV) yang sebelumnya bersifat laten di ganglia sensoris "
             "setelah infeksi cacar air. Reaktivasi umumnya dipicu oleh penurunan imunitas akibat usia lanjut, stres, atau imunosupresi, "
             "dan menimbulkan ruam vesikel yang nyeri mengikuti satu jalur dermaton."
         ),
-        "gejala"    : [
-            "Fase awal: nyeri, rasa terbakar, atau kesemutan pada satu sisi tubuh",
-            "Vesikel multipel yang terasa nyeri mengikuti jalur dermaton",
-            "Gejala prodromal: sakit kepala, malaise umum, dan fotofobia",
-            "Nyeri yang dapat berlanjut setelah ruam sembuh (postherpetic neuralgia)",
-        ],
-        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC8876683/",
-        "sumber"    : "Patil et al., Viruses 2022",
+        "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC8876683/",
+        "sumber" : "Patil et al., Viruses 2022",
     },
     "Normal": {
-        "color"     : "#1E8A5E",
-        "bg"        : "#EDFAF3",
-        "border"    : "#A8DFC7",
-        "icon"      : "🟢",
-        "deskripsi" : (
+        "color"  : "#1E8A5E",
+        "icon"   : "🟢",
+        "deskripsi": (
             "Kulit normal merupakan kondisi kulit sehat dengan fungsi barrier yang optimal. "
             "Kulit tersusun dari tiga lapisan utama — epidermis, dermis, dan hipodermis — "
             "yang bersama-sama melindungi tubuh dari patogen, radiasi UV, bahan kimia, dan cedera mekanis, "
             "sekaligus berperan dalam regulasi suhu tubuh."
         ),
-        "gejala"    : [
-            "Tidak ditemukan tanda-tanda kelainan atau penyakit kulit",
-            "Fungsi barrier kulit optimal — mencegah kehilangan air dan invasi patogen",
-            "Warna dan tekstur kulit merata, terhidrasi dengan baik",
-            "Tidak ada lesi, kemerahan, bersisik, atau iritasi",
-        ],
-        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC11597055/",
-        "sumber"    : "Brito et al., Pharmaceutics 2024",
+        "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC11597055/",
+        "sumber" : "Brito et al., Pharmaceutics 2024",
     },
     "Ringworm": {
-        "color"     : "#6B4FBF",
-        "bg"        : "#F4F1FF",
-        "border"    : "#C9BFF5",
-        "icon"      : "🟠",
-        "deskripsi" : (
+        "color"  : "#6B4FBF",
+        "icon"   : "🟠",
+        "deskripsi": (
             "Tinea corporis (ringworm) adalah infeksi jamur superfisial pada kulit yang disebabkan oleh dermatofita, "
             "paling umum Trichophyton rubrum. Penyakit ini menampilkan lesi anular (berbentuk cincin) berbatas jelas "
             "dengan hipopigmentasi sentral, dan merupakan kondisi kulit paling prevalen di dunia "
             "dengan estimasi risiko seumur hidup sebesar 10–20%."
         ),
-        "gejala"    : [
-            "Papul dan plak anular (cincin) berbatas jelas dengan tepi lebih menonjol",
-            "Hipopigmentasi atau clearing pada bagian tengah lesi",
-            "Skuama (sisik) pada tepi lesi yang aktif",
-            "Rasa gatal (pruritus) pada area yang terinfeksi",
-            "Pada kulit gelap, lesi dapat tampak violaseus atau hiperpigmentasi",
-        ],
-        "jurnal"    : "https://pmc.ncbi.nlm.nih.gov/articles/PMC12971098/",
-        "sumber"    : "Van Alfen et al., HCA Healthcare J Med 2026",
+        "jurnal" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC12971098/",
+        "sumber" : "Van Alfen et al., HCA Healthcare J Med 2026",
     },
 }
 
@@ -127,11 +93,9 @@ html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
 
-/* Background */
 .stApp { background-color: #F7F8FC; }
 .block-container { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; max-width: 1200px; }
 
-/* Sidebar */
 [data-testid="stSidebar"] {
     background: #1A1D2E !important;
     border-right: 1px solid #2A2D3E;
@@ -139,25 +103,21 @@ html, body, [class*="css"] {
 [data-testid="stSidebar"] * { color: #C8CCDF !important; }
 [data-testid="stSidebar"] hr { border-color: #2A2D3E !important; }
 [data-testid="stSidebar"] .stRadio label { font-size: 0.88rem !important; }
-
 [data-testid="stSidebar"] .stRadio > label:first-child {
     font-size: 0.68rem !important;
     letter-spacing: 0.09em;
     text-transform: uppercase;
     color: #555870 !important;
 }
-
 [data-testid="stSidebar"] .stRadio [data-testid="stMarkdownContainer"] p {
     font-size: 0.9rem !important;
     font-weight: 500;
 }
 
-/* Headings */
 h1 { font-weight: 700 !important; letter-spacing: -0.03em !important; color: #0F1117 !important; }
 h2 { font-weight: 600 !important; letter-spacing: -0.02em !important; }
 h3 { font-weight: 600 !important; }
 
-/* File uploader */
 [data-testid="stFileUploader"] {
     background: white;
     border-radius: 14px;
@@ -165,7 +125,6 @@ h3 { font-weight: 600 !important; }
     padding: 0.5rem;
 }
 
-/* Metric */
 [data-testid="stMetric"] {
     background: white;
     border-radius: 14px;
@@ -176,11 +135,9 @@ h3 { font-weight: 600 !important; }
 [data-testid="stMetricLabel"] { font-size: 0.75rem !important; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #8896AB !important; }
 [data-testid="stMetricValue"] { font-size: 1.9rem !important; font-weight: 700 !important; }
 
-/* Progress bar */
 [data-testid="stProgress"] > div > div { border-radius: 99px !important; }
 [data-testid="stProgress"] { border-radius: 99px !important; }
 
-/* Source tag */
 .source-tag {
     display: inline-block;
     margin-top: 0.5rem;
@@ -327,11 +284,6 @@ if "Deteksi" in menu:
                 unsafe_allow_html=True
             )
 
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("**Gejala Umum**")
-            for g in info["gejala"]:
-                st.write(f"— {g}")
-
             if label != "Normal":
                 st.warning("Hasil ini **bukan diagnosis medis**. Segera konsultasikan ke dokter kulit untuk pemeriksaan lebih lanjut.")
 
@@ -365,17 +317,11 @@ elif "Informasi" in menu:
             st.subheader(selected)
             st.divider()
 
-            st.markdown("**Deskripsi**")
             st.write(info["deskripsi"])
             st.markdown(
                 f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">📄 {info["sumber"]} ↗</a>',
                 unsafe_allow_html=True
             )
-
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("**Gejala Umum**")
-            for g in info["gejala"]:
-                st.write(f"— {g}")
 
     st.divider()
     st.warning("Informasi di atas bersifat **edukatif**. Bukan pengganti diagnosis medis profesional. Selalu konsultasikan kondisi kulit Anda kepada tenaga medis profesional.")
