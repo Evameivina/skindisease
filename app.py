@@ -2,7 +2,7 @@ import streamlit as st
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 import gdown
 import os
@@ -161,6 +161,16 @@ transform = transforms.Compose([
 ])
 
 
+def square_crop(image: Image.Image, size: int = 400) -> Image.Image:
+    image = ImageOps.exif_transpose(image)
+    w, h  = image.size
+    side  = min(w, h)
+    left  = (w - side) // 2
+    top   = (h - side) // 2
+    image = image.crop((left, top, left + side, top + side))
+    return image.resize((size, size), Image.LANCZOS)
+
+
 def predict(image, model):
     if image.mode != "RGB":
         image = image.convert("RGB")
@@ -171,7 +181,7 @@ def predict(image, model):
     return CLASSES[np.argmax(probs)], probs
 
 
-# ── SIDEBAR ──────────────────────────────────────────────────────────────────
+# SIDEBAR
 with st.sidebar:
     st.markdown("""
         <div style="text-align:center;padding:1.75rem 0 1.5rem;">
@@ -234,6 +244,7 @@ if "Deteksi" in menu:
 
     else:
         image = Image.open(uploaded_file)
+        display_image = square_crop(image.convert("RGB"))
 
         with st.spinner("Menganalisis gambar..."):
             model        = load_model()
@@ -242,7 +253,7 @@ if "Deteksi" in menu:
         _, center, _ = st.columns([1, 2, 1])
 
         with center:
-            st.image(image, use_container_width=True)
+            st.image(display_image, use_container_width=True)
             st.divider()
 
             info = DISEASE_INFO[label]
