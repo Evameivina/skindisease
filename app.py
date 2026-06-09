@@ -17,7 +17,6 @@ st.set_page_config(
 CLASSES               = ["Eczema", "Herpes Zoster", "Normal", "Ringworm"]
 MODEL_URL             = "https://drive.google.com/uc?id=1s2BhRSSuUTRpuANjXkzTYSEAi_wKTuLR"
 MODEL_PATH            = "convnext_skin_state_dict.pth"
-CONFIDENCE_THRESHOLD  = 0.60
 device                = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 DISEASE_INFO = {
@@ -169,12 +168,6 @@ def predict(image, model):
     with torch.no_grad():
         out   = model(tensor)
         probs = torch.softmax(out, dim=1).cpu().numpy()[0]
-
-    max_conf = float(np.max(probs))
-
-    if max_conf < CONFIDENCE_THRESHOLD:
-        return None, probs
-
     return CLASSES[np.argmax(probs)], probs
 
 
@@ -205,7 +198,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 
-# ── MENU: DETEKSI ─────────────────────────────────────────────────────────────
+# MENU: DETEKSI
 if "Deteksi" in menu:
 
     st.markdown("<h2 style='text-align:center;'>Deteksi Penyakit Kulit</h2>", unsafe_allow_html=True)
@@ -252,41 +245,29 @@ if "Deteksi" in menu:
             st.image(image, use_container_width=True)
             st.divider()
 
-            if label is None:
-                st.error(
-                    "⚠️ Gambar tidak dikenali sebagai citra penyakit kulit. "
-                    "Pastikan foto menampilkan area kulit dengan jelas dan pencahayaan yang cukup."
-                )
-                st.caption(
-                    f"Confidence score tertinggi yang diperoleh adalah "
-                    f"{float(np.max(probs)) * 100:.2f}%, "
-                    f"di bawah batas minimum {int(CONFIDENCE_THRESHOLD * 100)}% yang diperlukan."
-                )
+            info = DISEASE_INFO[label]
+            conf = float(probs[CLASSES.index(label)]) * 100
 
-            else:
-                info = DISEASE_INFO[label]
-                conf = float(probs[CLASSES.index(label)]) * 100
+            st.subheader(f"Hasil: {label}")
+            st.metric(label="Confidence Score", value=f"{conf:.2f}%")
+            st.divider()
 
-                st.subheader(f"Hasil: {label}")
-                st.metric(label="Confidence Score", value=f"{conf:.2f}%")
-                st.divider()
+            st.markdown("**Tentang Kondisi Ini**")
+            st.write(info["deskripsi"])
+            st.markdown(
+                f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">'
+                f'Baca artikel selengkapnya — {info["sumber"]} ↗</a>',
+                unsafe_allow_html=True
+            )
 
-                st.markdown("**Tentang Kondisi Ini**")
-                st.write(info["deskripsi"])
-                st.markdown(
-                    f'<a href="{info["jurnal"]}" target="_blank" class="source-tag">'
-                    f'Baca artikel selengkapnya — {info["sumber"]} ↗</a>',
-                    unsafe_allow_html=True
+            if label != "Normal":
+                st.warning(
+                    "Hasil ini **bukan diagnosis medis**. "
+                    "Segera konsultasikan ke dokter kulit untuk pemeriksaan lebih lanjut."
                 )
 
-                if label != "Normal":
-                    st.warning(
-                        "Hasil ini **bukan diagnosis medis**. "
-                        "Segera konsultasikan ke dokter kulit untuk pemeriksaan lebih lanjut."
-                    )
 
-
-# ── MENU: INFORMASI ───────────────────────────────────────────────────────────
+# MENU: INFORMASI
 elif "Informasi" in menu:
 
     st.markdown("<h2 style='text-align:center;'>Informasi Penyakit Kulit</h2>", unsafe_allow_html=True)
