@@ -5,11 +5,11 @@ Perbandingan performa tiga arsitektur *Convolutional Neural Network* (CNN) berba
 > Skripsi — Program Studi Informatika, Fakultas Teknologi Industri, Universitas Gunadarma (2026)
 > **Eva Meivina Dwiana** (50422472) — Pembimbing: Dr. Antonius Angga Kurniawan, ST., MMSI.
 
-🔗 **Coba aplikasinya:** [skindiseaseproyek.streamlit.app](https://skindiseaseproyek.streamlit.app/)
+**Aplikasinya:** [skindiseaseproyek.streamlit.app](https://skindiseaseproyek.streamlit.app/)
 
 ---
 
-## 📌 Ringkasan
+## Ringkasan
 
 Penyakit kulit menyumbang **4,60%–12,95%** dari seluruh kasus penyakit di Indonesia dan menempati peringkat ketiga penyakit terbanyak. Diagnosis manual rentan terhadap variasi hasil, terutama untuk penyakit dengan karakteristik visual yang mirip seperti **Ringworm**, **Herpes Zoster**, dan **Eczema**.
 
@@ -29,22 +29,22 @@ Proyek ini membandingkan tiga arsitektur CNN berbasis *transfer learning* untuk 
 - Menjadi referensi bagi peneliti/akademisi dalam pengembangan sistem klasifikasi citra medis berbasis *deep learning*.
 - Menunjukkan penerapan nyata hasil perbandingan arsitektur CNN berbasis *transfer learning* dalam bentuk aplikasi yang dapat digunakan langsung oleh pengguna.
 
-## 🏆 Hasil Utama
+## Hasil Utama
 
 | Model | Accuracy | Precision | Recall | F1-Score | Rata-rata CV |
 |---|---|---|---|---|---|
 | MobileNetV3-Large | 97,05% | 97,15% | 97,21% | 97,17% | 91,87% ± 0,33% |
 | ResNet50 | 96,05% | 96,11% | 96,24% | 96,15% | 94,08% ± 0,26% |
-| **ConvNeXt-Tiny** ⭐ | **99,57%** | **99,55%** | **99,56%** | **99,55%** | **97,74% ± 0,14%** |
+| **ConvNeXt-Tiny** | **99,57%** | **99,55%** | **99,56%** | **99,55%** | **97,74% ± 0,18%** |
 
 **ConvNeXt-Tiny** terpilih sebagai model terbaik dan digunakan pada tahap implementasi aplikasi.
 
-- ✅ Black-box testing: seluruh fitur aplikasi berfungsi sesuai kebutuhan
-- ✅ Pengujian 20 citra data uji: kesesuaian **100%**
-- ✅ Pengujian 20 citra eksternal (Google): kesesuaian **100%**
-- ✅ Validasi 30 citra oleh dokter spesialis kulit dan kelamin (Sp.D.V.E): kesesuaian **96,67%** (29/30)
+- Black-box testing: seluruh fitur aplikasi berfungsi sesuai kebutuhan
+- Pengujian 20 citra data uji: kesesuaian **100%**
+- Pengujian 20 citra eksternal (Google): kesesuaian **100%**
+- Validasi 30 citra oleh dokter spesialis kulit dan kelamin (Sp.D.V.E): kesesuaian **96,67%** (29/30)
 
-## 📊 Dataset
+## Dataset
 
 - **Sumber**: [Kaggle — Massive Skin Disease Balanced Dataset](https://www.kaggle.com) (lisensi MIT)
 - **Total citra digunakan**: 30.260 citra (4 dari 34 kelas pada dataset asli)
@@ -57,7 +57,7 @@ Proyek ini membandingkan tiga arsitektur CNN berbasis *transfer learning* untuk 
 | Eczema | 6.715 | 22,19% |
 | Normal | 7.334 | 24,24% |
 
-## 🧠 Metodologi
+## Metodologi
 
 Penelitian mengacu pada kerangka kerja **CRISP-DM**:
 
@@ -82,7 +82,7 @@ Penelitian mengacu pada kerangka kerja **CRISP-DM**:
 | Optimizer | Adam | Adam |
 | Loss function | CrossEntropyLoss (label smoothing 0.1) | CrossEntropyLoss (label smoothing 0.1) |
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Bahasa**: Python 3.11.12 (aplikasi mendukung Python ≥ 3.9)
 - **Deep Learning**: PyTorch & Torchvision (model ConvNeXt-Tiny)
@@ -110,7 +110,7 @@ Penelitian mengacu pada kerangka kerja **CRISP-DM**:
 - Tools: Google Colaboratory / Jupyter Notebook, Visual Studio Code
 - Git (opsional, jika project diunduh melalui repository)
 
-## 🌐 Akses Online (Tanpa Instalasi)
+## Akses Online (Tanpa Instalasi)
 
 Aplikasi **SkinScan** sudah di-*deploy* menggunakan **Streamlit Community Cloud**, sehingga bisa langsung diakses tanpa instalasi apa pun:
 
@@ -119,23 +119,7 @@ Aplikasi **SkinScan** sudah di-*deploy* menggunakan **Streamlit Community Cloud*
 3. Tunggu proses pemuatan awal — aplikasi otomatis mengunduh berkas model dari Google Drive di sisi server (hanya terjadi sekali selama server aktif).
 4. Halaman utama SkinScan akan tampil dan siap digunakan.
 
-## 🚀 Menjalankan Aplikasi Secara Lokal
-
-```bash
-# Clone repository
-git clone https://github.com/Evameivina/skindisease
-cd skindisease
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Jalankan aplikasi Streamlit
-streamlit run app.py
-```
-
-Buka `http://localhost:8501` pada browser, lalu unggah citra kulit pada menu **Deteksi** untuk mendapatkan hasil klasifikasi beserta *confidence score*.
-
-## 📖 Cara Penggunaan Aplikasi
+## Cara Penggunaan Aplikasi
 
 ### 1. Tampilan Awal
 Setelah aplikasi terbuka, akan tampil *sidebar* dengan dua menu utama: **Deteksi** dan **Informasi**.
@@ -155,49 +139,16 @@ Setelah aplikasi terbuka, akan tampil *sidebar* dengan dua menu utama: **Deteksi
 ### 5. Keluar dari Aplikasi
 Aplikasi dapat ditutup dengan menutup tab browser.
 
-> 💡 **Tips**: Gunakan foto dengan pencahayaan cukup, fokus jelas, dan area kulit yang terlihat langsung (tanpa pakaian/aksesori menutupi) untuk hasil klasifikasi yang lebih akurat.
-
-## 📁 Struktur Proyek
-
-```
-├── app.py                  # Aplikasi web Streamlit (SkinScan)
-├── models/
-│   └── convnext_tiny.pth   # Bobot model terbaik (ConvNeXt-Tiny), diunduh dari Google Drive
-├── notebooks/
-│   ├── training.ipynb      # Notebook pelatihan model
-│   └── evaluation.ipynb    # Notebook evaluasi & cross validation
-├── requirements.txt
-└── README.md
-```
-
 ## ⚠️ Batasan
 
 - Aplikasi hanya menghasilkan **label klasifikasi** dan **confidence score** — tidak mencakup segmentasi lesi, deteksi lokasi, atau rekomendasi pengobatan.
 - Aplikasi berfungsi sebagai **alat bantu screening awal** dan **tidak dimaksudkan untuk menggantikan diagnosis medis** oleh tenaga kesehatan profesional.
 - Model dilatih dan diuji pada dataset publik (Kaggle); performa pada citra dari fasilitas kesehatan nyata di Indonesia belum diuji secara khusus.
 
-## 🔭 Pengembangan Selanjutnya
+## Pengembangan Selanjutnya
 
 - Menambahkan lebih banyak jenis penyakit kulit dan dataset dari fasilitas kesehatan Indonesia
 - Menguji model pada citra dengan variasi kualitas, pencahayaan, dan latar belakang yang lebih realistis
 - Menambahkan fitur segmentasi lesi, deteksi area penyakit, dan rekomendasi penanganan awal
 - Eksplorasi arsitektur terkini seperti Vision Transformer (ViT) atau pendekatan ensemble
 - Validasi klinis skala lebih luas dengan lebih banyak tenaga medis
-
-## 📄 Sitasi
-
-Jika menggunakan proyek ini, mohon sertakan sitasi:
-
-```
-Dwiana, EM 2026, Perbandingan Arsitektur Convolutional Neural Network Berbasis
-Transfer Learning untuk Klasifikasi Penyakit Kulit dan Implementasinya pada
-Aplikasi Web Screening Awal, Skripsi, Universitas Gunadarma, Jakarta.
-```
-
-## 📜 Lisensi
-
-Dataset yang digunakan berlisensi **MIT** (Massive Skin Disease Balanced Dataset, Kaggle). Sesuaikan lisensi kode program sesuai kebutuhan repository ini.
-
-## 🙏 Ucapan Terima Kasih
-
-Terima kasih kepada dosen pembimbing, dokter spesialis kulit dan kelamin yang telah membantu validasi label dataset, serta seluruh pihak yang telah mendukung penyelesaian penelitian ini.
